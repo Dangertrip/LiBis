@@ -66,7 +66,8 @@ class reads():
 
     def canjoin(self,tail,step,xx,binsize):
         if (tail.getChrom()==self.chromosome):
-            if (tail.getStartPos() == self.startpos + step*(self.order-tail.getOrder()) or tail.getStartPos() == self.startpos - step*(self.order-tail.getOrder())):
+            if (tail.getStartPos() == self.startpos + step*(self.order-tail.getOrder()) or 
+            tail.getStartPos() == self.startpos - step*(self.order-tail.getOrder())):
             #if tail.getStartPos()>self.startpos: self.chain = 0
             #else: self.chain = 1
                 return True
@@ -76,23 +77,34 @@ class reads():
         return False
 
 
+def readsjoin(head,tail,step,xx,binsize):
+    
+    if (head[0]==tail[0]):
+        if (tail[1]==head[1]+step*(head[2]-tail[2]) or  tail[1]==head[1]-step*(head[2]-tail[2])):
+            return True
+        if xx!=binsize:
+            if xx % step == abs(head[1]-tail[1])%step:
+                return True
+    return False
+#[s[2][3:],int(s[3]),file_order,mismatch,0]
+#chromosome,startpos,order,mismatch,sum
 def overlap(a,b,step,length_bin):
 #Detect 2 kinds of overlapping
 # 1. fragments combination overlap: fragment 1 and fragment 2,3,4.. can not appear in two different combinations
 # 2. combinations can not overlap in reference genome.
-    ordera = a.getOrder()
-    orderb = b.getOrder()
+    ordera = a[2]
+    orderb = b[2]
     if (orderb<ordera):
         k=a
         a=b
         b=k
-    ordera = a.getOrder()
-    orderb = b.getOrder()
-    sa = a.getStartPos()
-    sb = b.getStartPos()
-    suma = a.getSum()
-    sumb = b.getSum()
-    if (a.getChrom()==b.getChrom()) and ((sa<sb and sa+suma*step+length_bin>sb) or (sb<sa and sb+sumb*step+length_bin>sa)): 
+    ordera = a[2]
+    orderb = b[2]
+    sa = a[1]
+    sb = b[1]
+    suma = a[4]
+    sumb = b[4]
+    if (a[0]==b[0]) and ((sa<sb and sa+suma*step+length_bin>sb) or (sb<sa and sb+sumb*step+length_bin>sa)): 
         return True
     if orderb-ordera-suma<=(length_bin/step)-1: return True
     return False
