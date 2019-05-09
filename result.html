@@ -1,0 +1,84 @@
+<html>
+<head>
+	<title>Result</title>
+	<script type="text/javascript" src="lib/datatables.min.js"></script>
+	<script type="text/javascript" src="lib/jQuery-3.3.1/jquery-3.3.1.min.js"></script>
+	<script type="text/javascript" src="lib/DataTables/jquery.dataTables.min.js"></script>
+	<link href="lib/datatables.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+	<p>QC and Alignment information: </p>
+	<div>
+	<table id="table" class="cell-border compact stripe">
+		<thead>
+			<tr>
+				<th>Filename</th>
+				<th>Label</th>
+				<th>QC</th>
+				<th>Trim</th>
+				<th>Input reads</th>
+				<th>mapped reads</th>
+				<th>uniquely mapped reads</th>
+				<th>clipped reads</th>
+				<th>uniquely clipped reads</th>
+				<th>all mapped reads</th>
+				<th>all uniquely mapped reads</th>
+				<th>mapping ratio</th>
+				<th>uniquely mapping ratio</th>
+			</tr>
+		</thead>
+	</table>
+	<div>
+	<p>Cluster figures:</p>
+	<img src="point_cluster.png">
+	<img src="heatmap.png">
+	<script>
+		$(document).ready(function(){
+			$.ajax({
+				type:"GET",
+				url:"./datatable.txt",
+				dataType:"text",
+				success:function(data){
+					var jsondata=processData(data);
+					$('#table').DataTable({
+						data:jsondata,
+						columns:[
+							{data:'Filename'},
+							{data:'Label'},
+							{data:'QC'},
+							{data:'Trim'},
+							{data:'Input reads'},
+							{data:'mapped reads'},
+							{data:'uniquely mapped reads'},
+							{data:'clipped reads'},
+							{data:'uniquely clipped reads'},
+							{data:'all mapped reads'},
+							{data:'all uniquely mapped reads'},
+							{data:'mapping ratio'},
+							{data:'uniquely mapping ratio'}
+						]
+					});
+				}
+			})
+		})
+		function processData(text){
+			var lines = text.split(/\r\n|\n/);
+			var record_num = lines.length;
+			var result=[];
+			var entries = lines[0].split('\t');
+
+			for (var i=1;i<lines.length-1;i++){
+				dic={};
+				d = lines[i].split('\t');
+				for (var j=0;j<entries.length;j++){
+					dic[entries[j]]=d[j];
+				}
+				result.push(dic);
+			}
+
+			console.log(result);
+			return(result)
+		}
+	</script>
+</body>
+</html>

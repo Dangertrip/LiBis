@@ -1,1 +1,16 @@
 For docker to clone
+
+git clone https://github.com/Dangertrip/LIBisPipe.git
+
+Docker installation:
+https://docs.docker.com/v17.12/install/
+
+Check Docker:
+docker --version
+
+Prepare Docker instance:
+
+cd LIBisPipe/
+docker build --tag=libispipe ./
+docker run libispipe pl --help
+### Show help messages

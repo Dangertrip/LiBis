@@ -44,15 +44,6 @@ def do_process(temp,param):
         filter = param['filter_len']
     else:
         filter = 40
-    #refpath='/data/dsun/ref/mouseigenome/mm10.fa'
-    #refpath = '/data/dsun/ref/humanigenome/hg19.fa'
-    #tempname=temp[0].lower()
-    #if tempname.endswith(".gz"):
-    #    tempname = tempname[:-3]
-    #if tempname.endswith(".fq"):
-    #    tempname = tempname[:-3]
-    #if tempname.endswith(".fastq"):
-    #    tempname = tempname[:-6]
     purename = temp[0][temp[0].rfind('/')+1:]
     outputname = RemoveFastqExtension(purename)
     #outputname = outputname[:outputname.find('_')]
@@ -260,12 +251,15 @@ def clipmode(name,param):
 
 def cleanupmess(name):
     pfn,n1,n2 = name
+    outputname = n1[:n1.rfind('_')]
     os.system('rm '+n1)
     os.system('rm '+n2)
     for n in pfn:
         os.system('rm '+n)
         os.system('rm '+n+'.bam')
         os.system('rm '+n+'.sam')
+    for i in range(10):
+        os.system('rm '+outputname+'_'+str(i)+'.mapreduce')
     
 
 
