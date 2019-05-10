@@ -14,3 +14,9 @@ cd LIBisPipe/
 docker build --tag=libispipe ./
 docker run libispipe pl --help
 ### Show help messages
+
+### Testcase:
+
+docker run -v /path/to/yourdata:/data/ libispipe LIBisPipe -f 0 -n 6P1_notrim_val_1.fq.gz,6P2_notrim_val_2.fq.gz 6P1_notrim_val_1.fq.gz,6P2_notrim_val_2.fq.gz -c 0 -l s1 s2 -g hg19 -r hg19.fa -qc 1 -t 1 
+
+### Please put reference and sample raw data under the dictionary you input.

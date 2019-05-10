@@ -204,10 +204,10 @@ def do_process(temp,param):
     #command='cat '+header+' '+splitfilename+'.sam | samtools view -bS - > '+splitfilename+'.bam'
     #filter.change(command)
     #filter.process()
-    command='samtools sort -@ 4 '+splitfilename+' -o '+splitfilename+'.sorted.bam'
+    command='samtools sort -f -@ 4 '+splitfilename+' '+splitfilename+'.sorted.bam'
     filter = Pshell(command)
     filter.process()
-    command='samtools sort -@ 4 '+outputname+'.bam'+' -o '+outputname+'.sort.bam'
+    command='samtools sort -f -@ 4 '+outputname+'.bam'+' '+outputname+'.sort.bam'
     filter.change(command)
     filter.process()
     command='mv '+outputname+'.sort.bam '+outputname+'.bam'
