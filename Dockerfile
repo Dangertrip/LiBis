@@ -6,10 +6,10 @@ ENV URL=https://github.com/Dangertrip/LIBisPipe.git
 RUN yum install -y git && \
 	cd / && \
 	git clone $URL && \
-	conda install --no-update-dependencies -c bioconda samtools=0.1.19 && \
-	conda install --no-update-dependencies -c bioconda bedtools && \
+	conda install -c bioconda samtools=0.1.19 && \
+	conda install -c bioconda bedtools && \
 	pip install -r LIBisPipe/requirements.txt && \
-	chmod +x LIBisPipe/pl && \
+	chmod +x LIBisPipe/LIBisPipe && \
     cd /data/ 	
 	
 ENV PATH /LIBisPipe:$PATH
