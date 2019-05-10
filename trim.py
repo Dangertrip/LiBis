@@ -16,8 +16,11 @@ class Trim():
     def setpath(self,path):
         self.path = path+'Trim'
 
-    def run(self,filename):
-        p = Pshell('trim_galore --gz -o '+self.path+' '+filename)
+    def run(self,filename,pair):
+        if pair==1:
+            p = Pshell('trim_galore --gz -o '+self.path+' '+filename)
+        else:
+            p = Pshell('trim_galore --gz --paired -o '+self.path+' '+filename)
         p.process()
 
 if __name__=='__main__':

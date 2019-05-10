@@ -30,22 +30,33 @@ def computeTrim(name,trim,param={}):
     fn=''
     trimmedname=[]
     triminfo=[]
+    print(name)
     for n in name:
         temp=[]
         infotemp=[]
+        fn=''
+        fileorder=1
         for nn in n:
             newname = RemoveFastqExtension(nn)
             fn = fn+nn+' '
-            temp.append('Trim/'+newname+'_trimmed.fq.gz')
+            if len(n)==1:
+                temp.append('Trim/'+newname+'_trimmed.fq.gz')
+            else:
+                temp.append('Trim/'+newname+'_val_'+str(fileorder)+'.fq.gz')
+                fileorder+=1
             infotemp.append('Trim/'+nn+'_trimming_report.txt')
         trimmedname.append(temp)
         triminfo.append(infotemp)
-    fn.strip()
-    trim.run(fn)
+        fn.strip()
+        if len(n)==1:
+            trim.run(fn,1)
+        else:
+            trim.run(fn,2)
     name=trimmedname
     return name,triminfo
 
 def computeBsmap(name,bsmap,param):
+    #return ['BAM_FILE/6P1_notrim_val_1_val_1_combine.bam','BAM_FILE/6P1_notrim_val_1_val_1_combine.bam'],[['BAM_FILE/6P1_notrim_val_1_val_1_originallog.record','BAM_FILE/6P1_notrim_val_1_val_1_split_log.record'],['BAM_FILE/6P1_notrim_val_1_val_1_originallog.record','BAM_FILE/6P1_notrim_val_1_val_1_split_log.record']]
     if not exist(name):
         raise "Fastq not found"
     clip = param['clip']
@@ -53,7 +64,7 @@ def computeBsmap(name,bsmap,param):
     bamlogname=[]
     for n in name:
         if clip:
-            newname,logname = bsmap.clipping(n)
+            newname,logname = bsmap.clipping(n,param)
         else:
             newname,logname = bsmap.normalmode(n)
         bamname.append(newname)
@@ -66,6 +77,8 @@ def computeMcall(name,mcall,param):
     bedname=[]
     logname=[]
     for n in name:
+        #bn="BED_FILE/6P1_notrim_val_1_val_1_combine.bam.G.bed"
+        #ln="BED_FILE/6P1_notrim_val_1_val_1_combine.bam_stat.txt"
         bn,ln=mcall.run(n)
         bedname.append(bn)
         logname.append(ln)
@@ -76,15 +89,15 @@ def computeProcess(param):
     ProcessObject=[fastqc,trim,bsmap,mcall,bedtools]
     for obj in ProcessObject:
         status,word=obj.check()
-        if not status:
-            raise Exception(word)
+        #if not status:
+        #    raise Exception(word)
+    
     #check all software have been installed successfully.
     for obj in ProcessObject[:-1]:
         obj.setpath('./')
     
     bsmap.setparam(param)
     mcall.setparam(param)
-    
 
     name = param['name']
     resultfilename={}
@@ -100,7 +113,13 @@ def computeProcess(param):
 
     name,bsmapresult = computeBsmap(name,bsmap,param) 
     resultfilename['bsmap'] = bsmapresult
-
+    print(resultfilename) 
+    #resultfilename={}
+    #resultfilename['trim']=
+    #resultfilename['bsmap']
+    #name=['BAM_FILE/6P1_notrim_val_1_val_1_combine.bam']
+    
+    
     name,mcallresult = computeMcall(name,mcall,param)
     resultfilename['mcall'] = mcallresult
     meth_cpg_bed_name=name
@@ -148,6 +167,7 @@ def computeProcess(param):
 
     sample=0
     datatable=[marker]
+    #print(trimresult)
     for orin in originalfilename:
         l = filelabel[sample]
         br = bsmapresult[sample]
@@ -178,6 +198,7 @@ def computeProcess(param):
     '''
     Table generated as RESULT/datatable.txt
     '''
+    #print(filelabel)
     if param['genome']!=None and len(filelabel)>1:
         bedtools.setparam(param)
         bedtools.makewindow()
@@ -202,9 +223,21 @@ def computeProcess(param):
 
         
     
-
-
-        
+if __name__=="__main__":
+    param={'name':[['6P1_notrim_val_1.fq.gz','6P2_notrim_val_2.fq.gz'],['6P1_notrim_val_1.fq.gz','6P2_notrim_val_2.fq.gz']], 
+           'clip':1, 
+           'label':['sample1','sample2'], 
+            'window':30, 
+            'step':5, 
+            'process':1, 
+            'ref':'/data/dsun/ref/humanigenome/hg19.fa', 
+            'qc':1,
+            'trim':1,
+            'genome':'hg19',
+            'bin':1000000,
+            'filter_len':40
+        }
+    computeProcess(param)   
          
         
 

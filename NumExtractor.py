@@ -54,13 +54,14 @@ def TrimOutputExtractor(filename):
             #Total written (filtered):  1,085,317,679 bp (94.2%)
             for line in lines:
                 temp = line.strip().split()
+                if len(temp)<5: continue
                 r=None
                 if temp[0]=='Total' and temp[1]=='written' and temp[2]=='(filtered):':
                     r=float(temp[5].strip()[1:-2])
                     break
                 temp.append(r)
             ratio.append(temp)
-    return r
+    return ratio
 
 '''
 Result from BsmapOutputExtractor:

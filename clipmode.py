@@ -35,6 +35,7 @@ def writefiles(UnmappedReads,step,length_bin,max_length,outputname):
 def do_process(temp,param):
     #print(l+'in')
     #temp = l.strip().split()
+    print(temp)
     length = len(temp)
     if length<=0 or length>2:
         print("Parameter error in "+l)
@@ -226,7 +227,7 @@ def do_process(temp,param):
     command='mv '+splitfilename+' BAM_FILE/'
     filter.change(command)
     filter.process()
-    return 'BAM_FILE'+outputname+'_combine.bam',originallogname,splitlogname,[Part_Fastq_Filename,outputname+'_finalfastq.fastq',outputname+'.sam']
+    return 'BAM_FILE/'+outputname+'_combine.bam',originallogname,splitlogname,[Part_Fastq_Filename,outputname+'_finalfastq.fastq',outputname+'.sam']
     print("Merge done!\nCreated final bam file called "+outputname+'_combine.bam')
 
 def clipmode(name,param):

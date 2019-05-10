@@ -1,0 +1,192 @@
+[bsmap] @Thu May  9 16:26:30 2019 	loading reference file: /data/dsun/ref/humanigenome/hg19.fa 	(format: FASTA)
+[bsmap] @Thu May  9 16:26:55 2019 	25 reference seqs loaded, total size 3095693983 bp. 25 secs passed
+[bsmap] @Thu May  9 16:29:09 2019 	create seed table. 159 secs passed
+[bsmap] @Thu May  9 16:29:09 2019 	Single-end alignment(8 threads),
+	Input read file: 6P1_notrim_val_1_val_1.part1.fastq 	(format: FASTQ)
+	Output file: 6P1_notrim_val_1_val_1.part1.fastq.bam	 (format: SAM, automatically convert to BAM)
+[bsmap] @Thu May  9 16:29:14 2019 	total reads: 32666 	total time:  164 secs
+	aligned reads: 12925 (39.6%), unique reads: 12925 (39.6%), suppressed non-unique reads: 9127 (27.9%)
+[bsmap] @Thu May  9 16:29:14 2019 	loading reference file: /data/dsun/ref/humanigenome/hg19.fa 	(format: FASTA)
+[bsmap] @Thu May  9 16:29:39 2019 	25 reference seqs loaded, total size 3095693983 bp. 25 secs passed
+[bsmap] @Thu May  9 16:31:23 2019 	create seed table. 129 secs passed
+[bsmap] @Thu May  9 16:31:23 2019 	Single-end alignment(8 threads),
+	Input read file: 6P1_notrim_val_1_val_1.part2.fastq 	(format: FASTQ)
+	Output file: 6P1_notrim_val_1_val_1.part2.fastq.bam	 (format: SAM, automatically convert to BAM)
+[bsmap] @Thu May  9 16:31:28 2019 	total reads: 32575 	total time:  134 secs
+	aligned reads: 13166 (40.4%), unique reads: 13166 (40.4%), suppressed non-unique reads: 9489 (29.1%)
+[bsmap] @Thu May  9 16:31:28 2019 	loading reference file: /data/dsun/ref/humanigenome/hg19.fa 	(format: FASTA)
+[bsmap] @Thu May  9 16:31:53 2019 	25 reference seqs loaded, total size 3095693983 bp. 25 secs passed
+[bsmap] @Thu May  9 16:34:05 2019 	create seed table. 157 secs passed
+[bsmap] @Thu May  9 16:34:05 2019 	Single-end alignment(8 threads),
+	Input read file: 6P1_notrim_val_1_val_1.part3.fastq 	(format: FASTQ)
+	Output file: 6P1_notrim_val_1_val_1.part3.fastq.bam	 (format: SAM, automatically convert to BAM)
+[bsmap] @Thu May  9 16:34:10 2019 	total reads: 32428 	total time:  162 secs
+	aligned reads: 13292 (41.0%), unique reads: 13292 (41.0%), suppressed non-unique reads: 9307 (28.7%)
+[bsmap] @Thu May  9 16:34:11 2019 	loading reference file: /data/dsun/ref/humanigenome/hg19.fa 	(format: FASTA)
+[bsmap] @Thu May  9 16:34:35 2019 	25 reference seqs loaded, total size 3095693983 bp. 24 secs passed
+[bsmap] @Thu May  9 16:36:41 2019 	create seed table. 150 secs passed
+[bsmap] @Thu May  9 16:36:41 2019 	Single-end alignment(8 threads),
+	Input read file: 6P1_notrim_val_1_val_1.part4.fastq 	(format: FASTQ)
+	Output file: 6P1_notrim_val_1_val_1.part4.fastq.bam	 (format: SAM, automatically convert to BAM)
+[bsmap] @Thu May  9 16:36:46 2019 	total reads: 32206 	total time:  155 secs
+	aligned reads: 13444 (41.7%), unique reads: 13444 (41.7%), suppressed non-unique reads: 9026 (28.0%)
+[bsmap] @Thu May  9 16:36:46 2019 	loading reference file: /data/dsun/ref/humanigenome/hg19.fa 	(format: FASTA)
+[bsmap] @Thu May  9 16:37:11 2019 	25 reference seqs loaded, total size 3095693983 bp. 25 secs passed
+[bsmap] @Thu May  9 16:39:15 2019 	create seed table. 149 secs passed
+[bsmap] @Thu May  9 16:39:15 2019 	Single-end alignment(8 threads),
+	Input read file: 6P1_notrim_val_1_val_1.part5.fastq 	(format: FASTQ)
+	Output file: 6P1_notrim_val_1_val_1.part5.fastq.bam	 (format: SAM, automatically convert to BAM)
+[bsmap] @Thu May  9 16:39:20 2019 	total reads: 31895 	total time:  154 secs
+	aligned reads: 13153 (41.2%), unique reads: 13153 (41.2%), suppressed non-unique reads: 8813 (27.6%)
+[bsmap] @Thu May  9 16:39:20 2019 	loading reference file: /data/dsun/ref/humanigenome/hg19.fa 	(format: FASTA)
+[bsmap] @Thu May  9 16:39:44 2019 	25 reference seqs loaded, total size 3095693983 bp. 24 secs passed
+[bsmap] @Thu May  9 16:41:46 2019 	create seed table. 146 secs passed
+[bsmap] @Thu May  9 16:41:46 2019 	Single-end alignment(8 threads),
+	Input read file: 6P1_notrim_val_1_val_1.part6.fastq 	(format: FASTQ)
+	Output file: 6P1_notrim_val_1_val_1.part6.fastq.bam	 (format: SAM, automatically convert to BAM)
+[bsmap] @Thu May  9 16:41:50 2019 	total reads: 31506 	total time:  150 secs
+	aligned reads: 12743 (40.4%), unique reads: 12743 (40.4%), suppressed non-unique reads: 8378 (26.6%)
+[bsmap] @Thu May  9 16:41:50 2019 	loading reference file: /data/dsun/ref/humanigenome/hg19.fa 	(format: FASTA)
+[bsmap] @Thu May  9 16:42:15 2019 	25 reference seqs loaded, total size 3095693983 bp. 25 secs passed
+[bsmap] @Thu May  9 16:44:18 2019 	create seed table. 148 secs passed
+[bsmap] @Thu May  9 16:44:18 2019 	Single-end alignment(8 threads),
+	Input read file: 6P1_notrim_val_1_val_1.part7.fastq 	(format: FASTQ)
+	Output file: 6P1_notrim_val_1_val_1.part7.fastq.bam	 (format: SAM, automatically convert to BAM)
+[bsmap] @Thu May  9 16:44:22 2019 	total reads: 31038 	total time:  152 secs
+	aligned reads: 11914 (38.4%), unique reads: 11914 (38.4%), suppressed non-unique reads: 7911 (25.5%)
+[bsmap] @Thu May  9 16:44:23 2019 	loading reference file: /data/dsun/ref/humanigenome/hg19.fa 	(format: FASTA)
+[bsmap] @Thu May  9 16:44:48 2019 	25 reference seqs loaded, total size 3095693983 bp. 25 secs passed
+[bsmap] @Thu May  9 16:46:54 2019 	create seed table. 151 secs passed
+[bsmap] @Thu May  9 16:46:54 2019 	Single-end alignment(8 threads),
+	Input read file: 6P1_notrim_val_1_val_1.part8.fastq 	(format: FASTQ)
+	Output file: 6P1_notrim_val_1_val_1.part8.fastq.bam	 (format: SAM, automatically convert to BAM)
+[bsmap] @Thu May  9 16:46:58 2019 	total reads: 30445 	total time:  155 secs
+	aligned reads: 10667 (35.0%), unique reads: 10667 (35.0%), suppressed non-unique reads: 7320 (24.0%)
+[bsmap] @Thu May  9 16:46:58 2019 	loading reference file: /data/dsun/ref/humanigenome/hg19.fa 	(format: FASTA)
+[bsmap] @Thu May  9 16:47:24 2019 	25 reference seqs loaded, total size 3095693983 bp. 26 secs passed
+[bsmap] @Thu May  9 16:49:28 2019 	create seed table. 150 secs passed
+[bsmap] @Thu May  9 16:49:28 2019 	Single-end alignment(8 threads),
+	Input read file: 6P1_notrim_val_1_val_1.part9.fastq 	(format: FASTQ)
+	Output file: 6P1_notrim_val_1_val_1.part9.fastq.bam	 (format: SAM, automatically convert to BAM)
+[bsmap] @Thu May  9 16:49:31 2019 	total reads: 29776 	total time:  153 secs
+	aligned reads: 9243 (31.0%), unique reads: 9243 (31.0%), suppressed non-unique reads: 6608 (22.2%)
+[bsmap] @Thu May  9 16:49:32 2019 	loading reference file: /data/dsun/ref/humanigenome/hg19.fa 	(format: FASTA)
+[bsmap] @Thu May  9 16:49:56 2019 	25 reference seqs loaded, total size 3095693983 bp. 24 secs passed
+[bsmap] @Thu May  9 16:52:04 2019 	create seed table. 152 secs passed
+[bsmap] @Thu May  9 16:52:04 2019 	Single-end alignment(8 threads),
+	Input read file: 6P1_notrim_val_1_val_1.part10.fastq 	(format: FASTQ)
+	Output file: 6P1_notrim_val_1_val_1.part10.fastq.bam	 (format: SAM, automatically convert to BAM)
+[bsmap] @Thu May  9 16:52:07 2019 	total reads: 29119 	total time:  155 secs
+	aligned reads: 7897 (27.1%), unique reads: 7897 (27.1%), suppressed non-unique reads: 5773 (19.8%)
+[bsmap] @Thu May  9 16:52:07 2019 	loading reference file: /data/dsun/ref/humanigenome/hg19.fa 	(format: FASTA)
+[bsmap] @Thu May  9 16:52:31 2019 	25 reference seqs loaded, total size 3095693983 bp. 24 secs passed
+[bsmap] @Thu May  9 16:54:21 2019 	create seed table. 134 secs passed
+[bsmap] @Thu May  9 16:54:21 2019 	Single-end alignment(8 threads),
+	Input read file: 6P1_notrim_val_1_val_1.part11.fastq 	(format: FASTQ)
+	Output file: 6P1_notrim_val_1_val_1.part11.fastq.bam	 (format: SAM, automatically convert to BAM)
+[bsmap] @Thu May  9 16:54:25 2019 	total reads: 28298 	total time:  138 secs
+	aligned reads: 6875 (24.3%), unique reads: 6875 (24.3%), suppressed non-unique reads: 5174 (18.3%)
+[bsmap] @Thu May  9 16:54:25 2019 	loading reference file: /data/dsun/ref/humanigenome/hg19.fa 	(format: FASTA)
+[bsmap] @Thu May  9 16:54:50 2019 	25 reference seqs loaded, total size 3095693983 bp. 25 secs passed
+[bsmap] @Thu May  9 16:56:48 2019 	create seed table. 143 secs passed
+[bsmap] @Thu May  9 16:56:48 2019 	Single-end alignment(8 threads),
+	Input read file: 6P1_notrim_val_1_val_1.part12.fastq 	(format: FASTQ)
+	Output file: 6P1_notrim_val_1_val_1.part12.fastq.bam	 (format: SAM, automatically convert to BAM)
+[bsmap] @Thu May  9 16:56:51 2019 	total reads: 27527 	total time:  146 secs
+	aligned reads: 5930 (21.5%), unique reads: 5930 (21.5%), suppressed non-unique reads: 4511 (16.4%)
+[bsmap] @Thu May  9 16:56:51 2019 	loading reference file: /data/dsun/ref/humanigenome/hg19.fa 	(format: FASTA)
+[bsmap] @Thu May  9 16:57:16 2019 	25 reference seqs loaded, total size 3095693983 bp. 25 secs passed
+[bsmap] @Thu May  9 16:59:10 2019 	create seed table. 139 secs passed
+[bsmap] @Thu May  9 16:59:10 2019 	Single-end alignment(8 threads),
+	Input read file: 6P1_notrim_val_1_val_1.part13.fastq 	(format: FASTQ)
+	Output file: 6P1_notrim_val_1_val_1.part13.fastq.bam	 (format: SAM, automatically convert to BAM)
+[bsmap] @Thu May  9 16:59:12 2019 	total reads: 26721 	total time:  141 secs
+	aligned reads: 4962 (18.6%), unique reads: 4962 (18.6%), suppressed non-unique reads: 3983 (14.9%)
+[bsmap] @Thu May  9 16:59:13 2019 	loading reference file: /data/dsun/ref/humanigenome/hg19.fa 	(format: FASTA)
+[bsmap] @Thu May  9 16:59:37 2019 	25 reference seqs loaded, total size 3095693983 bp. 24 secs passed
+[bsmap] @Thu May  9 17:01:34 2019 	create seed table. 141 secs passed
+[bsmap] @Thu May  9 17:01:34 2019 	Single-end alignment(8 threads),
+	Input read file: 6P1_notrim_val_1_val_1.part14.fastq 	(format: FASTQ)
+	Output file: 6P1_notrim_val_1_val_1.part14.fastq.bam	 (format: SAM, automatically convert to BAM)
+[bsmap] @Thu May  9 17:01:37 2019 	total reads: 25926 	total time:  144 secs
+	aligned reads: 4581 (17.7%), unique reads: 4581 (17.7%), suppressed non-unique reads: 3636 (14.0%)
+[bsmap] @Thu May  9 17:01:37 2019 	loading reference file: /data/dsun/ref/humanigenome/hg19.fa 	(format: FASTA)
+[bsmap] @Thu May  9 17:02:02 2019 	25 reference seqs loaded, total size 3095693983 bp. 25 secs passed
+[bsmap] @Thu May  9 17:03:59 2019 	create seed table. 142 secs passed
+[bsmap] @Thu May  9 17:03:59 2019 	Single-end alignment(8 threads),
+	Input read file: 6P1_notrim_val_1_val_1.part15.fastq 	(format: FASTQ)
+	Output file: 6P1_notrim_val_1_val_1.part15.fastq.bam	 (format: SAM, automatically convert to BAM)
+[bsmap] @Thu May  9 17:04:02 2019 	total reads: 24913 	total time:  145 secs
+	aligned reads: 3796 (15.2%), unique reads: 3796 (15.2%), suppressed non-unique reads: 3137 (12.6%)
+[bsmap] @Thu May  9 17:04:02 2019 	loading reference file: /data/dsun/ref/humanigenome/hg19.fa 	(format: FASTA)
+[bsmap] @Thu May  9 17:04:27 2019 	25 reference seqs loaded, total size 3095693983 bp. 25 secs passed
+[bsmap] @Thu May  9 17:06:27 2019 	create seed table. 145 secs passed
+[bsmap] @Thu May  9 17:06:27 2019 	Single-end alignment(8 threads),
+	Input read file: 6P1_notrim_val_1_val_1.part16.fastq 	(format: FASTQ)
+	Output file: 6P1_notrim_val_1_val_1.part16.fastq.bam	 (format: SAM, automatically convert to BAM)
+[bsmap] @Thu May  9 17:06:29 2019 	total reads: 24141 	total time:  147 secs
+	aligned reads: 3579 (14.8%), unique reads: 3579 (14.8%), suppressed non-unique reads: 2772 (11.5%)
+[bsmap] @Thu May  9 17:06:30 2019 	loading reference file: /data/dsun/ref/humanigenome/hg19.fa 	(format: FASTA)
+[bsmap] @Thu May  9 17:06:54 2019 	25 reference seqs loaded, total size 3095693983 bp. 24 secs passed
+[bsmap] @Thu May  9 17:08:43 2019 	create seed table. 133 secs passed
+[bsmap] @Thu May  9 17:08:43 2019 	Single-end alignment(8 threads),
+	Input read file: 6P1_notrim_val_1_val_1.part17.fastq 	(format: FASTQ)
+	Output file: 6P1_notrim_val_1_val_1.part17.fastq.bam	 (format: SAM, automatically convert to BAM)
+[bsmap] @Thu May  9 17:08:45 2019 	total reads: 23257 	total time:  135 secs
+	aligned reads: 3089 (13.3%), unique reads: 3089 (13.3%), suppressed non-unique reads: 2408 (10.4%)
+[bsmap] @Thu May  9 17:08:46 2019 	loading reference file: /data/dsun/ref/humanigenome/hg19.fa 	(format: FASTA)
+[bsmap] @Thu May  9 17:09:11 2019 	25 reference seqs loaded, total size 3095693983 bp. 25 secs passed
+[bsmap] @Thu May  9 17:10:55 2019 	create seed table. 129 secs passed
+[bsmap] @Thu May  9 17:10:55 2019 	Single-end alignment(8 threads),
+	Input read file: 6P1_notrim_val_1_val_1.part18.fastq 	(format: FASTQ)
+	Output file: 6P1_notrim_val_1_val_1.part18.fastq.bam	 (format: SAM, automatically convert to BAM)
+[bsmap] @Thu May  9 17:10:57 2019 	total reads: 22293 	total time:  131 secs
+	aligned reads: 2936 (13.2%), unique reads: 2936 (13.2%), suppressed non-unique reads: 2238 (10.0%)
+[bsmap] @Thu May  9 17:10:57 2019 	loading reference file: /data/dsun/ref/humanigenome/hg19.fa 	(format: FASTA)
+[bsmap] @Thu May  9 17:11:21 2019 	25 reference seqs loaded, total size 3095693983 bp. 24 secs passed
+[bsmap] @Thu May  9 17:13:25 2019 	create seed table. 148 secs passed
+[bsmap] @Thu May  9 17:13:25 2019 	Single-end alignment(8 threads),
+	Input read file: 6P1_notrim_val_1_val_1.part19.fastq 	(format: FASTQ)
+	Output file: 6P1_notrim_val_1_val_1.part19.fastq.bam	 (format: SAM, automatically convert to BAM)
+[bsmap] @Thu May  9 17:13:27 2019 	total reads: 21310 	total time:  150 secs
+	aligned reads: 2756 (12.9%), unique reads: 2756 (12.9%), suppressed non-unique reads: 2030 (9.5%)
+[bsmap] @Thu May  9 17:13:27 2019 	loading reference file: /data/dsun/ref/humanigenome/hg19.fa 	(format: FASTA)
+[bsmap] @Thu May  9 17:13:52 2019 	25 reference seqs loaded, total size 3095693983 bp. 25 secs passed
+[bsmap] @Thu May  9 17:15:53 2019 	create seed table. 146 secs passed
+[bsmap] @Thu May  9 17:15:53 2019 	Single-end alignment(8 threads),
+	Input read file: 6P1_notrim_val_1_val_1.part20.fastq 	(format: FASTQ)
+	Output file: 6P1_notrim_val_1_val_1.part20.fastq.bam	 (format: SAM, automatically convert to BAM)
+[bsmap] @Thu May  9 17:15:55 2019 	total reads: 20266 	total time:  148 secs
+	aligned reads: 2703 (13.3%), unique reads: 2703 (13.3%), suppressed non-unique reads: 1916 (9.5%)
+[bsmap] @Thu May  9 17:15:55 2019 	loading reference file: /data/dsun/ref/humanigenome/hg19.fa 	(format: FASTA)
+[bsmap] @Thu May  9 17:16:21 2019 	25 reference seqs loaded, total size 3095693983 bp. 26 secs passed
+[bsmap] @Thu May  9 17:18:17 2019 	create seed table. 142 secs passed
+[bsmap] @Thu May  9 17:18:17 2019 	Single-end alignment(8 threads),
+	Input read file: 6P1_notrim_val_1_val_1.part21.fastq 	(format: FASTQ)
+	Output file: 6P1_notrim_val_1_val_1.part21.fastq.bam	 (format: SAM, automatically convert to BAM)
+[bsmap] @Thu May  9 17:18:18 2019 	total reads: 19394 	total time:  143 secs
+	aligned reads: 2869 (14.8%), unique reads: 2869 (14.8%), suppressed non-unique reads: 1967 (10.1%)
+[bsmap] @Thu May  9 17:18:19 2019 	loading reference file: /data/dsun/ref/humanigenome/hg19.fa 	(format: FASTA)
+[bsmap] @Thu May  9 17:18:43 2019 	25 reference seqs loaded, total size 3095693983 bp. 24 secs passed
+[bsmap] @Thu May  9 17:20:52 2019 	create seed table. 153 secs passed
+[bsmap] @Thu May  9 17:20:52 2019 	Single-end alignment(8 threads),
+	Input read file: 6P1_notrim_val_1_val_1.part22.fastq 	(format: FASTQ)
+	Output file: 6P1_notrim_val_1_val_1.part22.fastq.bam	 (format: SAM, automatically convert to BAM)
+[bsmap] @Thu May  9 17:20:54 2019 	total reads: 18095 	total time:  155 secs
+	aligned reads: 2559 (14.1%), unique reads: 2559 (14.1%), suppressed non-unique reads: 1815 (10.0%)
+[bsmap] @Thu May  9 17:20:54 2019 	loading reference file: /data/dsun/ref/humanigenome/hg19.fa 	(format: FASTA)
+[bsmap] @Thu May  9 17:21:19 2019 	25 reference seqs loaded, total size 3095693983 bp. 25 secs passed
+[bsmap] @Thu May  9 17:23:19 2019 	create seed table. 145 secs passed
+[bsmap] @Thu May  9 17:23:19 2019 	Single-end alignment(8 threads),
+	Input read file: 6P1_notrim_val_1_val_1.part23.fastq 	(format: FASTQ)
+	Output file: 6P1_notrim_val_1_val_1.part23.fastq.bam	 (format: SAM, automatically convert to BAM)
+[bsmap] @Thu May  9 17:23:21 2019 	total reads: 16774 	total time:  147 secs
+	aligned reads: 2372 (14.1%), unique reads: 2372 (14.1%), suppressed non-unique reads: 1700 (10.1%)
+[bsmap] @Thu May  9 17:23:21 2019 	loading reference file: /data/dsun/ref/humanigenome/hg19.fa 	(format: FASTA)
+[bsmap] @Thu May  9 17:23:46 2019 	25 reference seqs loaded, total size 3095693983 bp. 25 secs passed
+[bsmap] @Thu May  9 17:25:44 2019 	create seed table. 143 secs passed
+[bsmap] @Thu May  9 17:25:44 2019 	Single-end alignment(8 threads),
+	Input read file: 6P1_notrim_val_1_val_1.part24.fastq 	(format: FASTQ)
+	Output file: 6P1_notrim_val_1_val_1.part24.fastq.bam	 (format: SAM, automatically convert to BAM)
+[bsmap] @Thu May  9 17:25:46 2019 	total reads: 15335 	total time:  145 secs
+	aligned reads: 1916 (12.5%), unique reads: 1916 (12.5%), suppressed non-unique reads: 1377 (9.0%)

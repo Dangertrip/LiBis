@@ -21,7 +21,7 @@ class Bedtools:
     def makewindow(self):
         path=os.path.abspath(__file__)
         path = path[:path.rfind('/')+1]
-        filename = path+'chromsize/'+self.genome + '.chrom.sizes.clean'
+        filename = path+'chromsize/'+self.genome + '.chrom.sizes'
         print(filename)
         outputname = self.genome+'_'+str(self.bin)+'.bed'
         os.system('bedtools makewindows -g '+filename+' -w '+str(self.bin)+' > '+outputname)
