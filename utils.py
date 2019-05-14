@@ -17,7 +17,7 @@ class Pshell():
     def process(self):
         print(self.commend)
         t = subprocess.Popen(self.commend,shell=True,stdout = subprocess.PIPE,stderr = subprocess.PIPE)
-        self.out = t.stdout.read().decode()
+        self.out = ''#t.stdout.read().decode()
         self.err = t.stderr.read().decode()
         print(self.err)
 

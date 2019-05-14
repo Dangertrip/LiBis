@@ -95,7 +95,7 @@ class Bsmap():
         p = Pshell(cmd)
         p.process()
 	p.change('samtools sort -f -@ 4 '+name+' '+name+'.sorted.bam')
-        #p.change('samtools sort -@ 4 --output-fmt BAM -o '+name+'.sorted.bam '+name)
+        #p.change('samtools sort -f -@ 4 --output-fmt BAM -o '+name+'.sorted.bam '+name)
         p.process()
         p.change('mv '+name+'.sorted.bam '+name)
         p.process()
