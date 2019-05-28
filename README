@@ -1,6 +1,42 @@
-For docker to clone
 
-git clone https://github.com/Dangertrip/LIBisPipe.git
+There are two ways to run LIBisPipe:
+1.Run it locally without docker:
+In this mode, you will get faster computing speed, but the configuration is more complex.
+
+Here's the steps:
+    
+    a.Install MOABS and make sure bsmap and mcall added to the PATH. You may run "bsmap" and "mcall" to check the availability.
+      
+      wget https://github.com/Dangertrip/LIBisPipe/archive/master.zip
+      unzip master.zip
+      chmod +x LIBisPipe-master/LIBisPipe
+      conda install -c bioconda samtools=1.1
+
+      bsmap and mcall are included in LIBisPipe while it may not fit to your environment. Please check whether it works or not. If it doesn't fit your environment, please install it from: https://github.com/sunnyisgalaxy/moabs
+      Please make sure samtools' version is at least 1.1
+
+    b.Install Python3, conda and pip
+      Python3 and conda can be downloaded and installed from https://www.anaconda.com/distribution/
+      Please make sure than Python version is at least 3.6
+
+      pip install -r LIBisPipe-master/requirements.txt
+    
+    c.Install Fastqc and make sure fastqc is added to the PATH.
+      
+      conda install -c bioconda fastqc
+
+    d.Install bedtools
+
+      conda install -c bioconda bedtools
+
+    e.Install cutadapt and trim-galore
+
+      conda install -c bioconda cutadapt
+      conda install -c bioconda trim-galore
+
+    
+
+2.Run it with docker:
 
 Docker installation:
 https://docs.docker.com/v17.12/install/
