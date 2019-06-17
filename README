@@ -13,7 +13,8 @@ Here's the steps:
       conda install -c bioconda samtools=1.1
 
       bsmap and mcall are included in LIBisPipe while it may not fit to your environment. Please check whether it works or not. If it doesn't fit your environment, please install it from: https://github.com/sunnyisgalaxy/moabs
-      Please make sure samtools' version is at least 1.1
+      Please make sure samtools' version is at least 1.1.
+      Please add LIBisPipe to $PATH to run the pipeline.
 
     b.Install Python3, conda and pip
       Python3 and conda can be downloaded and installed from https://www.anaconda.com/distribution/
@@ -34,6 +35,9 @@ Here's the steps:
       conda install -c bioconda cutadapt
       conda install -c bioconda trim-galore
 
+    f.Run LIBisPipe
+    
+      LIBisPipe -f 0 -n 6P1_notrim_val_1.fq.gz,6P2_notrim_val_2.fq.gz 6P1_notrim_val_1.fq.gz,6P2_notrim_val_2.fq.gz -c 0 -l s1 s2 -g hg19 -r hg19.fa -qc 1 -t 1
     
 
 2.Run it with docker:
