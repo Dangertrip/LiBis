@@ -52,7 +52,7 @@ Prepare Docker instance:
 
 cd LIBisPipe/
 docker build --tag=libispipe ./
-docker run libispipe pl --help
+docker run libispipe LIBisPipe --help
 ### Show help messages
 
 ### Testcase:
