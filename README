@@ -1,5 +1,9 @@
 
-There are two ways to run LIBisPipe:
+There are two ways to run Liba:
+
+
+If you want to run clipmode of Liba, please change "-c 0" in command to "-c 1" 
+
 
 1.Run it locally without docker:
 In this mode, you will get faster computing speed, but the configuration is more complex.
@@ -62,8 +66,39 @@ Here's the steps:
 
         ### Please put reference and sample raw data under the dictionary you input.
 
+
 Parameters in Liba:
 
 optional arguments:
+  -h, --help            show this help message and exit
+  -f FILE, --file FILE  Required. Enter a number, 0 means using parameter to
+                        set up, 1 means using text file to set up
+  -sf SETTINGFILE, --settingfile SETTINGFILE
+                        Required. Setting txt file name. Ignore if -f is 0.
+  -n [NAME [NAME ...]], --name [NAME [NAME ...]]
+                        Required. Fastq file name.
+  -c CLIP, --clip CLIP  Clip mode. 0 means close. 1 means open. default: 0
+  -l [LABEL [LABEL ...]], --label [LABEL [LABEL ...]]
+                        Required. Labels for samples
+  -g GENOME, --genome GENOME
+                        Required. Genome the reference belong to.(Use for
+                        plotting) hg18/hg19/mm10/mm9 and so on. Plotting
+                        script will not avaliable if leave it blank
+  -w WINDOW, --window WINDOW
+                        Window length for clipping mode, default=30
+  -s STEP, --step STEP  Step size for clipping mode.
+  -p PROCESS, --process PROCESS
+                        Process using for one pipeline. Normally bsmap will
+                        cost 8 cpu number. So total will be 8p.
+  -r REF, --ref REF     Required. Reference
+  -qc QUALITYCONTROL, --QualityControl QUALITYCONTROL
+                        Do(1) quality control or not(0)
+  -t TRIM, --trim TRIM  Do(1) trimming or not(0). Don't need to do trimming if
+                        you use clip mode.
+  -b BINSIZE, --binsize BINSIZE
+                        Plot setting. Set the bin size for averaging
+                        methylation ratio among samples, default=1000k
+  -ft FILTER, --filter FILTER
+                        filter for clipped reads
 
 
