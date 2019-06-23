@@ -134,6 +134,14 @@ def toolcheck(command):
         return False
     return True
 
+def samtoolsversion():
+    t = subprocess.Popen('samtools --version',shell=True,stdout = subprocess.PIPE,stderr = subprocess.PIPE)
+    out = t.stdout.read().decode()
+    err = t.stdout.read().decode()
+    version = out.split('\n')[0].split()[1].strip()
+    version = float(version)
+    return version
+
 def readf(filename):
     '''
     Tested
@@ -180,19 +188,20 @@ if __name__=="__main__":
     #dic=union(['BED_FILE/head_combine.bam.G.bed.short.bed','BED_FILE/head_combine.bam.G.bed.short.bed'])
     #print(dic)
     #print(RemoveFastqExtension('SRR1248444_2.fastq.gz'))
-    files=[]
-    for i in range(15):
-        files.append('../example/scWGBS/BED_FILE/'+str(i)+'.bed')
-    data=[]
-    dic=union(files)
-    columns = ['chrom','start','end']
+    #files=[]
+    #for i in range(15):
+    #    files.append('../example/scWGBS/BED_FILE/'+str(i)+'.bed')
+    #data=[]
+    #dic=union(files)
+    #columns = ['chrom','start','end']
     #print(methdic)
-    methdata=list(map(lambda x:x.split()+dic[x],dic))
+    #methdata=list(map(lambda x:x.split()+dic[x],dic))
     #columns.extend(list(map(lambda x:'F'+str(x),list(range(1,len(methdata[0])-2)))))
-    columns.extend(['MII','MII','MII','MII','MII','2iESC','2iESC','2iESC','2iESC','2iESC','Ser_ESC','Ser_ESC','Ser_ESC','Ser_ESC','Ser_ESC'])
+    #columns.extend(['MII','MII','MII','MII','MII','2iESC','2iESC','2iESC','2iESC','2iESC','Ser_ESC','Ser_ESC','Ser_ESC','Ser_ESC','Ser_ESC'])
     #print(methdata)
     #print(columns)
-    from pandas import DataFrame
-    from bsplot import *
-    df = DataFrame(methdata,columns=columns)
-    point_cluster(df,'point_clutser.png')
+    #from pandas import DataFrame
+    #from bsplot import *
+    #df = DataFrame(methdata,columns=columns)
+    #point_cluster(df,'point_clutser.png')
+    print(samtoolsversion())

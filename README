@@ -1,5 +1,6 @@
 
 There are two ways to run LIBisPipe:
+
 1.Run it locally without docker:
 In this mode, you will get faster computing speed, but the configuration is more complex.
 
@@ -13,7 +14,7 @@ Here's the steps:
       conda install -c bioconda samtools=1.1
 
       bsmap and mcall are included in LIBisPipe while it may not fit to your environment. Please check whether it works or not. If it doesn't fit your environment, please install it from: https://github.com/sunnyisgalaxy/moabs
-      Please make sure samtools' version is at least 1.1.
+      Please make sure samtools' version is 1.1.
       Please add LIBisPipe to $PATH to run the pipeline.
 
     b.Install Python3, conda and pip
@@ -42,21 +43,27 @@ Here's the steps:
 
 2.Run it with docker:
 
-Docker installation:
-https://docs.docker.com/v17.12/install/
+    Docker installation:
+        https://docs.docker.com/v17.12/install/
 
-Check Docker:
-docker --version
+    Check Docker availability:
+        docker --version
 
-Prepare Docker instance:
+    Prepare Docker instance:
 
-cd LIBisPipe/
-docker build --tag=libispipe ./
-docker run libispipe LIBisPipe --help
-### Show help messages
+        cd LIBisPipe/
+        docker build --tag=libispipe ./
+        docker run libispipe LIBisPipe --help
+        ### Show help messages
 
-### Testcase:
+        ### Testcase:
 
-docker run -v /path/to/yourdata:/data/ libispipe LIBisPipe -f 0 -n 6P1_notrim_val_1.fq.gz,6P2_notrim_val_2.fq.gz 6P1_notrim_val_1.fq.gz,6P2_notrim_val_2.fq.gz -c 0 -l s1 s2 -g hg19 -r hg19.fa -qc 1 -t 1 
+        docker run -v /path/to/yourdata:/data/ libispipe LIBisPipe -f 0 -n 6P1_notrim_val_1.fq.gz,6P2_notrim_val_2.fq.gz 6P1_notrim_val_1.fq.gz,6P2_notrim_val_2.fq.gz -c 0 -l s1 s2 -g hg19 -r hg19.fa -qc 1 -t 1 
 
-### Please put reference and sample raw data under the dictionary you input.
+        ### Please put reference and sample raw data under the dictionary you input.
+
+Parameters in Liba:
+
+optional arguments:
+
+

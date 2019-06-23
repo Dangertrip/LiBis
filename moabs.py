@@ -56,6 +56,17 @@ class Mcall():
 
 class Bsmap():
 
+    def __init__(self):
+        self.samtools_version = samtoolsversion()
+    
+    def samtools_sort(self,p, inputfile, outputfile):
+        if self.samtools_version<=1.3:
+            p.change('samtools sort -f -@ 4 '+inputfile+' '+outputfile)
+            p.process()
+        else:
+            p.change('')
+            p.process()
+    
     def check(self):
         #return True,''
         if not toolcheck('bsmap -h'):
@@ -89,9 +100,9 @@ class Bsmap():
         name = self.path+purename+'.bam'
         logname = self.path+purename+'.record'
         if len(f)==1:
-            cmd = 'bsmap -a '+f[0]+' -d '+self.refpath+' -o '+name+' -n 0 1>>BAM_FILE/bsmap_log 2>'+logname
+            cmd = 'bsmap -a '+f[0]+' -d '+self.refpath+' -o '+name+' -n 1 1>>BAM_FILE/bsmap_log 2>'+logname
         else:
-            cmd = 'bsmap -a '+f[0]+' -b '+f[1]+' -d '+self.refpath+' -o '+name+' -n 0 1>>BAM_FILE/bsmap_log 2>'+logname
+            cmd = 'bsmap -a '+f[0]+' -b '+f[1]+' -d '+self.refpath+' -o '+name+' -n 1 1>>BAM_FILE/bsmap_log 2>'+logname
         p = Pshell(cmd)
         p.process()
         p.change('samtools sort -f -@ 4 '+name+' '+name+'.sorted.bam')
