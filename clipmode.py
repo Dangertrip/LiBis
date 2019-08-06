@@ -63,9 +63,9 @@ def do_process(temp,param):
 
     phred=33
     if length==2 :
-        commend='bsmap -a '+temp[0]+' -b '+temp[1]+' -z '+str(phred)+' -d '+refpath+' -o '+outputname+'.bam -n 1 -r 0 1>>log 2>>'+originallogname
+        commend='bsmap -a '+temp[0]+' -b '+temp[1]+' -z '+str(phred)+' -d '+refpath+' -o '+outputname+'.bam -S 123 -n 1 -r 0 1>>log 2>>'+originallogname
     else:
-        commend='bsmap -a '+temp[0]+' -z '+str(phred)+' -d '+refpath+'  -o '+outputname+'.bam -n 1 -r 0 1>>log 2>>'+originallogname
+        commend='bsmap -a '+temp[0]+' -z '+str(phred)+' -d '+refpath+'  -o '+outputname+'.bam -S 123 -n 1 -r 0 1>>log 2>>'+originallogname
     First_try = Pshell(commend)
     First_try.process()
 
@@ -165,7 +165,7 @@ def do_process(temp,param):
     #We've got the splited fastq file, filename is stored in Part_Fastq_Filename
    # p = multiprocessing.Pool(processes=7)
     for i in range(len(Part_Fastq_Filename)):
-        commend = 'bsmap -a '+Part_Fastq_Filename[i]+' -z '+str(phred)+' -d '+refpath+'  -o '+Part_Fastq_Filename[i]+'.bam -n 1 -r 0 -R 1>>bsmap_log 2>>bsmap_err'
+        commend = 'bsmap -a '+Part_Fastq_Filename[i]+' -z '+str(phred)+' -d '+refpath+'  -o '+Part_Fastq_Filename[i]+'.bam -S 123 -n 1 -r 0 -R 1>>bsmap_log 2>>bsmap_err'
         Batch_try = Pshell(commend)
         Batch_try.process()
         command = 'samtools view '+Part_Fastq_Filename[i]+'.bam >'+Part_Fastq_Filename[i]+'.sam'
@@ -188,7 +188,7 @@ def do_process(temp,param):
     reads_reduce(mapreduce_names,args)
     splitlogname = 'BAM_FILE/'+outputname+'_split_log.record'
 
-    commend = 'bsmap -a '+outputname+'_finalfastq.fastq -d '+refpath+' -z '+str(phred)+' -o '+outputname+'_split.bam -n 1 -r 0 1>>log 2>> '+splitlogname
+    commend = 'bsmap -a '+outputname+'_finalfastq.fastq -d '+refpath+' -z '+str(phred)+' -o '+outputname+'_split.bam -S 123 -n 1 -r 0 1>>log 2>> '+splitlogname
     Bam = Pshell(commend)
     Bam.process()
     splitfilename = outputname+'_split.bam'

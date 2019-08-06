@@ -100,9 +100,9 @@ class Bsmap():
         name = self.path+purename+'.bam'
         logname = self.path+purename+'.record'
         if len(f)==1:
-            cmd = 'bsmap -a '+f[0]+' -d '+self.refpath+' -o '+name+' -n 1 1>>BAM_FILE/bsmap_log 2>'+logname
+            cmd = 'bsmap -a '+f[0]+' -d '+self.refpath+' -o '+name+' -S 123 -n 1 1>>BAM_FILE/bsmap_log 2>'+logname
         else:
-            cmd = 'bsmap -a '+f[0]+' -b '+f[1]+' -d '+self.refpath+' -o '+name+' -n 1 1>>BAM_FILE/bsmap_log 2>'+logname
+            cmd = 'bsmap -a '+f[0]+' -b '+f[1]+' -d '+self.refpath+' -o '+name+' -S 123 -n 1 1>>BAM_FILE/bsmap_log 2>'+logname
         p = Pshell(cmd)
         p.process()
         p.change('samtools sort -f -@ 4 '+name+' '+name+'.sorted.bam')

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import time
 import argparse
 import os
 import xml.dom.minidom
@@ -132,7 +133,9 @@ def input_args():
     return param
 
 if __name__=="__main__":
+    print(time.time())
     param=input_args()
     computeProcess(param)
+    print(time.time())
 
 
