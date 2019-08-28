@@ -178,11 +178,29 @@ def exist(file):
         if isinstance(f,list):
             for ff in f:
                 if not os.path.exists(ff):
-                    return False
+                    return ff,False
         else:
             if not os.path.exists(f):
-                return False
-    return True
+                return f,False
+    return '',True
+
+
+def bam_file_name_format(s):
+    return s.strip().split(',')
+
+
+def fastq_file_name_format(s):
+    #split samples using blank. split double end files using comma(,);
+    ans=[]
+    for f in s:
+        if ',' in f:
+            ff=f.strip().split(',')
+        else:
+            ff = [f]
+        ans.append(ff)
+    return ans
+
+
 
 if __name__=="__main__":
     #dic=union(['BED_FILE/head_combine.bam.G.bed.short.bed','BED_FILE/head_combine.bam.G.bed.short.bed'])

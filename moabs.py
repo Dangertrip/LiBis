@@ -111,11 +111,11 @@ class Bsmap():
         p.process()
         return name,logname
 
-    def clipping(self,filenames,param={}):
+    def clipping(self,filenames, param, given_bam_file):
         '''
         I should return a bam file name and a log file name here
         '''
-        newname,log = clipmode(filenames,param)
+        newname,log = clipmode(filenames,param, given_bam_file)
         return newname,log
 
 if __name__=="__main__":

@@ -23,7 +23,7 @@ def writefiles(UnmappedReads,step,length_bin,max_length,outputname):
             mark,cutreads = cut(step,length_bin,link[0],i)
             if not mark: continue
             _,cutquality = cut(step,length_bin,link[1],i)
-            filecontent.append(readsname+'\n'+cutreads+'\n+\n'+cutquality+'\n')
+            filecontent.append('@'+readsname+'\n'+cutreads+'\n+\n'+cutquality+'\n')
         if len(filecontent)==0: break
         name = outputname+'.part'+str(i+1)+'.fastq'
         Part_Fastq_Filename.append(name)
@@ -32,10 +32,8 @@ def writefiles(UnmappedReads,step,length_bin,max_length,outputname):
     print(Part_Fastq_Filename)
     return Part_Fastq_Filename
 
-def do_process(inputfileinfo,param):
-    #print(l+'in')
-    #temp = l.strip().split()
-    print(inputfileinfo)
+def clip_process(inputfileinfo,param,given_bam_file):
+    # print(inputfileinfo)
     input_file_num = len(inputfileinfo)
     if input_file_num<=0 or input_file_num>2:
         print("Parameter error in "+l)
@@ -46,7 +44,12 @@ def do_process(inputfileinfo,param):
     else:
         filter = 40
     purename = inputfileinfo[0][inputfileinfo[0].rfind('/')+1:]
-    outputname = RemoveFastqExtension(purename)
+    
+    if not given_bam_file:
+        outputname = RemoveFastqExtension(purename)
+    else:
+        purename_bam = given_bam_file[given_bam_file.rfind('/')+1:]
+        outputname = RemoveFastqExtension(purename)+'.'+purename_bam[:-4]
     #outputname = outputname[:outputname.find('_')]
     print(outputname)
 
@@ -59,19 +62,26 @@ def do_process(inputfileinfo,param):
         if os.path.exists(name):
             os.system('rm '+name)
 
-    originallogname = 'BAM_FILE/'+outputname+'_originallog.record'
+    if not given_bam_file:
+        originallogname = 'BAM_FILE/'+outputname+'_originallog.record'
+    else:
+        originallogname = ''
 
     phred=33
-    if input_file_num==2 :
-        commend='bsmap -a '+inputfileinfo[0]+' -b '+inputfileinfo[1]+' -z '+str(phred)+' -d '+refpath+' -o '+outputname+'.bam -S 123 -n 1 -r 0 1>>log 2>>'+originallogname
-    else:
-        commend='bsmap -a '+inputfileinfo[0]+' -z '+str(phred)+' -d '+refpath+'  -o '+outputname+'.bam -S 123 -n 1 -r 0 1>>log 2>>'+originallogname
-    First_try = Pshell(commend)
-    First_try.process()
+    if not given_bam_file:
+        if input_file_num==2 :
+            commend='bsmap -a '+inputfileinfo[0]+' -b '+inputfileinfo[1]+' -z '+str(phred)+' -d '+refpath+' -o '+outputname+'.bam -S 123 -n 1 -r 0 1>>log 2>>'+originallogname
+        else:
+            commend='bsmap -a '+inputfileinfo[0]+' -z '+str(phred)+' -d '+refpath+'  -o '+outputname+'.bam -S 123 -n 1 -r 0 1>>log 2>>'+originallogname
+        First_try = Pshell(commend)
+        First_try.process()
 
 #Test1 done
-    commend = 'samtools view '+outputname+'.bam > '+outputname+'.sam'
-    BamFileReader = Pshell(commend)
+    if not given_bam_file:
+        command = 'samtools view '+outputname+'.bam > '+outputname+'.sam'
+    else:
+        command = 'samtools view '+given_bam_file+' > '+outputname+'.sam'
+    BamFileReader = Pshell(command)
 
     BamFileReader.process()
     
@@ -244,7 +254,7 @@ def do_process(inputfileinfo,param):
     return 'BAM_FILE/'+outputname+'_combine.bam',originallogname,splitlogname,[Part_Fastq_Filename,outputname+'_finalfastq.fastq',outputname+'.sam']
     print("Merge done!\nCreated final bam file called "+outputname+'_combine.bam')
 
-def clipmode(name,param):
+def clipmode(name,param, given_bam_file):
     '''
     When we get the mapping result, we should report 
     mapping ratio, mapped reads number, length distribution,
@@ -253,8 +263,7 @@ def clipmode(name,param):
     '''
     newname=[]
     log=[]
-    #for n in names:
-    newn,originallog,splitlog,cleanname=do_process(name,param)
+    newn,originallog,splitlog,cleanname=clip_process(name,param, given_bam_file)
     newname.append(newn)
     log.append([originallog,splitlog])
 
@@ -285,8 +294,8 @@ if __name__=="__main__":
     #import multiprocessing
     #pool = multiprocessing.Pool(processes=2)
     for l in lines:
-        #pool.apply_async(do_process,(l,))
-        do_process(l.strip().split(),{'ref':'/data/dsun/ref/humanigenome/hg19.fa','step':5,'window':30,'cleanmode':True}) #pass file name to do_process
+        #pool.apply_async(clip_process,(l,))
+        clip_process(l.strip().split(),{'ref':'/data/dsun/ref/humanigenome/hg19.fa','step':5,'window':30,'cleanmode':True}) #pass file name to clip_process
     #pool.close()
     #pool.join()
     #p = {'ref':'/data/dsun/ref/humanigenome/hg19.fa','step':5,'window':30,'cleanmode':True}

@@ -70,26 +70,38 @@ Result from BsmapResult:
     [[total reads,mapped reads,uniquely mapped reads, clipped reads, unique clipped reads,
     all mapped reads, all uniquely mapped reads, mapping ratio, uniquely mapping ratio],...]
 '''
-def BsmapResult(filenames,clip):
+def BsmapResult(filenames,clip,offered_bamfile):
     if clip:
         '''
         We will get two record files in this mode
         '''
         result=[]
-        for name in filenames:
+        for (name, processed_bam) in zip(filenames,offered_bam_file):
             ori,spl = name
-            ori_info,spl_info = BsmapOutputExtractor(ori),BsmapOutputExtractor(spl)
+            ori_info = BsmapOutputExtractor(ori) if processed_bam=='' else [1,1,1]
+            spl_info = BsmapOutputExtractor(spl)
             total_reads,mapped_reads,uniquely_mapped_reads=ori_info
             _,clipped_reads,uniquely_clipped_reads=spl_info
-            result.append([total_reads,mapped_reads,uniquely_mapped_reads,clipped_reads,
+            result.append([total_reads,
+                mapped_reads,
+                uniquely_mapped_reads,
+                clipped_reads,
                 uniquely_clipped_reads,
-                mapped_reads+clipped_reads,uniquely_mapped_reads+uniquely_clipped_reads,
+                mapped_reads+clipped_reads,
+                uniquely_mapped_reads+uniquely_clipped_reads,
                 (mapped_reads+clipped_reads)/float(total_reads),
-                (uniquely_mapped_reads+uniquely_clipped_reads)/float(total_reads)])
+                (uniquely_mapped_reads+uniquely_clipped_reads)/float(total_reads)
+            ])
+            if processed_bam!='':
+                for i in [0,1,4,5,6,7]:
+                    result[i]='Not Available'
     else:
         '''
         Only one record file need to be processed.
         '''
+        if processed_bam!='':
+            result.append(['Not Available']*9)
+            return result
         result=[]
         for name in filenames:
             ori = name

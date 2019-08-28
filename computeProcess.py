@@ -60,13 +60,18 @@ def computeBsmap(name,bsmap,param):
     if not exist(name):
         raise "Fastq not found"
     clip = param['clip']
+    given_bam_files = param['bamfiles']
     bamname=[]
     bamlogname=[]
-    for n in name:
+    for n,given_bam in zip(name,given_bam_files):
         if clip:
-            newname,logname = bsmap.clipping(n,param)
+            newname,logname = bsmap.clipping(n,param,given_bam)
         else:
-            newname,logname = bsmap.normalmode(n)
+            if given_bam!='':
+                logname = ''
+                newname = given_bam
+            else:
+                newname,logname = bsmap.normalmode(n)
         bamname.append(newname)
         bamlogname.append(logname)
     return bamname,bamlogname
@@ -163,7 +168,7 @@ def computeProcess(param):
     marker.extend(['Input reads','mapped reads','uniquely mapped reads','clipped reads', \
             'uniquely clipped reads','all mapped reads','all uniquely mapped reads',\
             'mapping ratio','uniquely mapping ratio'])
-    bsmapresult = BsmapResult(resultfilename['bsmap'],param['clip'])#All contents required by the last extend
+    bsmapresult = BsmapResult(resultfilename['bsmap'],param['clip'],param['bamfiles'])#All contents required by the last extend
 
     sample=0
     datatable=[marker]
@@ -203,7 +208,7 @@ def computeProcess(param):
         bedtools.setparam(param)
         bedtools.makewindow()
         shortnames=list(map(lambda x:x+'.short.bed',meth_cpg_bed_name))
-        intersectnames=bedtools.intersect(name)
+        intersectnames=bedtools.intersect(meth_cpg_bed_name)
         methdic=union(intersectnames)
         columns = ['chrom','start','end']
         #print(methdic)
