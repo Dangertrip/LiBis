@@ -49,7 +49,7 @@ def clip_process(inputfileinfo,param,given_bam_file):
         outputname = RemoveFastqExtension(purename)
     else:
         purename_bam = given_bam_file[given_bam_file.rfind('/')+1:]
-        outputname = RemoveFastqExtension(purename)+'.'+purename_bam[:-4]
+        outputname = RemoveFastqExtension(purename)+'_'+purename_bam[:-4]
     #outputname = outputname[:outputname.find('_')]
     print(outputname)
 
@@ -231,7 +231,10 @@ def clip_process(inputfileinfo,param,given_bam_file):
     command='samtools sort -f -@ 4 '+splitfilename+' '+splitfilename+'.sorted.bam'
     filter = Pshell(command)
     filter.process()
-    command='samtools sort -f -@ 4 '+outputname+'.bam'+' '+outputname+'.sort.bam'
+    if not given_bam_file:
+        command='samtools sort -f -@ 4 '+outputname+'.bam'+' '+outputname+'.sort.bam'
+    else:
+        command='samtools sort -f -@ 4 '+given_bam_file+' '+outputname+'.sort.bam'
     filter.change(command)
     filter.process()
     command='mv '+outputname+'.sort.bam '+outputname+'.bam'
@@ -243,6 +246,7 @@ def clip_process(inputfileinfo,param,given_bam_file):
     #command='rm '+splitfilename+'.bam '+splitfilename+'.sam '+header
     #filter.change(command)
     #filter.process()
+    # if not given_bam_file:
     m=Pshell('samtools merge BAM_FILE/'+outputname+'_combine.bam '+outputname+'.bam '+splitfilename)
     m.process()
     command='mv '+outputname+'.bam BAM_FILE/'
@@ -267,9 +271,9 @@ def clipmode(name,param, given_bam_file):
     newname.append(newn)
     log.append([originallog,splitlog])
 
-    if (not 'cleanmode' in param) or param['cleanmode']:
+    #if (not 'cleanmode' in param) or param['cleanmode']:
         #Set a clean mode and full mode for clipping mode
-        cleanupmess(cleanname)
+    #    cleanupmess(cleanname)
 
     return newname,log
 
@@ -282,6 +286,7 @@ def cleanupmess(name):
         os.system('rm '+n)
         os.system('rm '+n+'.bam')
         os.system('rm '+n+'.sam')
+        os.system('rm '+n+'.bam.bai')
     for i in range(10):
         os.system('rm '+outputname+'_'+str(i)+'.mapreduce')
     
