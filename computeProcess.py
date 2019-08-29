@@ -81,7 +81,9 @@ def computeMcall(name,mcall,param):
         raise "BAM not found"
     bedname=[]
     logname=[]
+    print(name)
     for n in name:
+        print(n)
         #bn="BED_FILE/6P1_notrim_val_1_val_1_combine.bam.G.bed"
         #ln="BED_FILE/6P1_notrim_val_1_val_1_combine.bam_stat.txt"
         bn,ln=mcall.run(n)

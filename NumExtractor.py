@@ -28,7 +28,7 @@ def BsmapOutputExtractor(filename):
         for line in lines:
             if "total reads:" in line:
                 a = line.strip().split()
-                print(a)
+                # print(a)
                 total=int(line[line.rfind('total reads:')+len('total reads:'):].split()[0])
                 continue
             if "aligned reads:" in line:
@@ -76,7 +76,9 @@ def BsmapResult(filenames,clip,offered_bamfile):
         We will get two record files in this mode
         '''
         result=[]
-        for (name, processed_bam) in zip(filenames,offered_bam_file):
+        # print(filenames)
+        # print(offered_bamfile)
+        for (name, processed_bam) in zip(filenames,offered_bamfile):
             ori,spl = name
             ori_info = BsmapOutputExtractor(ori) if processed_bam=='' else [1,1,1]
             spl_info = BsmapOutputExtractor(spl)
@@ -92,9 +94,10 @@ def BsmapResult(filenames,clip,offered_bamfile):
                 (mapped_reads+clipped_reads)/float(total_reads),
                 (uniquely_mapped_reads+uniquely_clipped_reads)/float(total_reads)
             ])
+            print(result)
             if processed_bam!='':
                 for i in [0,1,4,5,6,7]:
-                    result[i]='Not Available'
+                    result[-1][i]='Not Available'
     else:
         '''
         Only one record file need to be processed.
