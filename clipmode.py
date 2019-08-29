@@ -15,7 +15,8 @@ def cut(step,length_bin,link,i):
     return True,link[start:end]
 
 def writefiles(UnmappedReads,step,length_bin,max_length,outputname):
-    Part_Fastq_Filename = []
+    # Part_Fastq_Filename = []
+    unmapped_file = outputname + '.unmapped.fastq'
     for i in range(max_length):
         filecontent = []
         for readsname in UnmappedReads:
@@ -23,14 +24,15 @@ def writefiles(UnmappedReads,step,length_bin,max_length,outputname):
             mark,cutreads = cut(step,length_bin,link[0],i)
             if not mark: continue
             _,cutquality = cut(step,length_bin,link[1],i)
-            filecontent.append('@'+readsname+'\n'+cutreads+'\n+\n'+cutquality+'\n')
+            filecontent.append('@'+readsname+'&'+str(i+1)+'\n'+cutreads+'\n+\n'+cutquality+'\n')
         if len(filecontent)==0: break
-        name = outputname+'.part'+str(i+1)+'.fastq'
-        Part_Fastq_Filename.append(name)
-        with open(name,'a') as f:
+        # name = outputname+'.part'+str(i+1)+'.fastq'
+
+        # Part_Fastq_Filename.append(name)
+        with open(unmapped_file,'a') as f:
             f.writelines(filecontent)
-    print(Part_Fastq_Filename)
-    return Part_Fastq_Filename
+    # print(Part_Fastq_Filename)
+    return unmapped_file
 
 def clip_process(inputfileinfo,param,given_bam_file):
     # print(inputfileinfo)
@@ -52,12 +54,13 @@ def clip_process(inputfileinfo,param,given_bam_file):
         outputname = RemoveFastqExtension(purename)+'_'+purename_bam[:-4]
 
 
-    Part_Fastq_Filename=[]
-    
-    for i in range(24):
-        name = outputname+'.part'+str(i+1)+'.fastq'
-        if os.path.exists(name):
-            os.system('rm '+name)
+    # Part_Fastq_Filename=[]
+    unmapped_file = outputname + '.unmapped.fastq'
+    os.system('rm '+unmapped_file)
+    # for i in range(24):
+    #     name = outputname+'.part'+str(i+1)+'.fastq'
+    #     if os.path.exists(name):
+    #         os.system('rm '+name)
 
     if not given_bam_file:
         originallogname = 'BAM_FILE/'+outputname+'_originallog.record'
@@ -165,31 +168,31 @@ def clip_process(inputfileinfo,param,given_bam_file):
                 #fastqlines[i] = line1[0]+'_'+line1[1][0]+' '+line1[1]
                 UnmappedReads[read_name]=[line2,line4]
                 if len(UnmappedReads)>1000000:
-                    pfn = writefiles(UnmappedReads,step,length_bin,max_length,outputname)
+                    writefiles(UnmappedReads,step,length_bin,max_length,outputname)
                     UnmappedReads={}
-                    if len(pfn)>len(Part_Fastq_Filename):
-                        Part_Fastq_Filename=pfn
+                    # if len(pfn)>len(Part_Fastq_Filename):
+                    #     Part_Fastq_Filename=pfn
                     
 
 #We've got a dictionary named UnmappedReads = {readsname:[line1,line2,line3,line4]}
 
 #Change cut funtion into cut(setp,length_bin,string,fileorder), return Available(T/F), reads_fraction
     if len(UnmappedReads)>0:
-        pfn=writefiles(UnmappedReads,step,length_bin,max_length,outputname)
-        if len(pfn)>len(Part_Fastq_Filename):
-            Part_Fastq_Filename=pfn
+        writefiles(UnmappedReads,step,length_bin,max_length,outputname)
+        # if len(pfn)>len(Part_Fastq_Filename):
+        #     Part_Fastq_Filename=pfn
     print('finish')
     f.close()
     del UnmappedReads
     
     #We've got the splited fastq file, filename is stored in Part_Fastq_Filename
-    for i in range(len(Part_Fastq_Filename)):
-        commend = 'bsmap -a '+Part_Fastq_Filename[i]+' -z '+str(phred)+' -d '+refpath+'  -o '+Part_Fastq_Filename[i]+'.bam -S 123 -n 1 -r 0 -R 1>>bsmap_log 2>>bsmap_err'
-        Batch_try = Pshell(commend)
-        Batch_try.process()
-        command = 'samtools view '+Part_Fastq_Filename[i]+'.bam >'+Part_Fastq_Filename[i]+'.sam'
-        Batch_try = Pshell(command)
-        Batch_try.process()
+    # for i in range(len(Part_Fastq_Filename)):
+    command = 'bsmap -a '+unmapped_file+' -z '+str(phred)+' -d '+refpath+'  -o '+unmapped_file+'.bam -S 123 -n 1 -r 0 -R 1>>bsmap_log 2>>bsmap_err'
+    Batch_try = Pshell(command)
+    Batch_try.process()
+    command = 'samtools view '+unmapped_file+'.bam >'+unmapped_file+'.sam'
+    Batch_try = Pshell(command)
+    Batch_try.process()
 
    #run bsmap and get bam files named as Part_Fastq_Filename[i].bam
     #import combine to generate the finalfastq
@@ -202,7 +205,7 @@ def clip_process(inputfileinfo,param,given_bam_file):
           'mapfilenumber':10
           #'finish':1
          }
-    mapreduce_names = reads_map(Part_Fastq_Filename,args)
+    mapreduce_names = reads_map(unmapped_file,args)
     reads_reduce(mapreduce_names,args)
     splitlogname = 'BAM_FILE/'+outputname+'_split_log.record'
 
@@ -234,7 +237,7 @@ def clip_process(inputfileinfo,param,given_bam_file):
     command='mv '+splitfilename+' BAM_FILE/'
     filter.change(command)
     filter.process()
-    return 'BAM_FILE/'+outputname+'_combine.bam',originallogname,splitlogname,[Part_Fastq_Filename,outputname+'_finalfastq.fastq',outputname+'.sam']
+    return 'BAM_FILE/'+outputname+'_combine.bam',originallogname,splitlogname,[unmapped_file,outputname+'_finalfastq.fastq',outputname+'.sam']
     print("Merge done!\nCreated final bam file called "+outputname+'_combine.bam')
 
 def clipmode(name,param, given_bam_file):
@@ -246,22 +249,21 @@ def clipmode(name,param, given_bam_file):
     '''
     newn,originallog,splitlog,cleanname=clip_process(name,param, given_bam_file)
 
-    if (not 'cleanmode' in param) or param['cleanmode']:
-        #Set a clean mode and full mode for clipping mode
-        cleanupmess(cleanname)
+    # if (not 'cleanmode' in param) or param['cleanmode']:
+    #     #Set a clean mode and full mode for clipping mode
+    #     cleanupmess(cleanname)
 
     return newn,[originallog,splitlog]
 
 def cleanupmess(name):
-    pfn,n1,n2 = name
+    unmapped_file,n1,n2 = name
     outputname = n1[:n1.rfind('_')]
     os.system('rm '+n1)
     os.system('rm '+n2)
-    for n in pfn:
-        os.system('rm '+n)
-        os.system('rm '+n+'.bam')
-        os.system('rm '+n+'.sam')
-        os.system('rm '+n+'.bam.bai')
+    os.system('rm '+unmapped_file)
+    os.system('rm '+unmapped_file+'.bam')
+    os.system('rm '+unmapped_file+'.sam')
+    os.system('rm '+unmapped_file+'.bam.bai')
     for i in range(10):
         os.system('rm '+outputname+'_'+str(i)+'.mapreduce')
     
