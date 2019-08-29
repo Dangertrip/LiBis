@@ -2,13 +2,13 @@ from utils import *
 import os
 import gzip
 
-def reads_map(partfilelist,args):
+def reads_map(unmapped_file,args):
     mapfilenum = args['mapfilenumber']
     step = args['step']
 
     file_order=0
     mapreduce_file=[]
-    rootfile = partfilelist[0][:partfilelist[0].find('.')]
+    rootfile = unmapped_file[:unmapped_file.find('.')]
     dic={}
     for i in range(mapfilenum):
         mapreduce_file.append(rootfile+'_'+str(i)+'.mapreduce')
@@ -19,49 +19,50 @@ def reads_map(partfilelist,args):
     if 'finish' in args:
         return mapreduce_file
 
-    for file in partfilelist:
-        print(file)
-        count=0
-        with open(file+'.sam') as f:
-            for line in f:
-                s = line.strip().split('\t')
-                mismatch = int(s[11][s[11].rfind(':')+1:])
-                if mismatch>1: continue
-                read_length = len(s[9])
-                tail_length = ((read_length-1)%step)+1
-                refseq = s[12][-2-tail_length:-2]
-                readsseq = s[9][-tail_length:]
-                strand = s[13][-2:]
-                mis=0
-                for base in range(tail_length):
-                    if (refseq[base]!=readsseq[base]):
-                        if strand[0]=='+':
-                            if (refseq[base]=='C' and readsseq[base]=='T'): continue
-                        else:
-                            if (refseq[base]=='G' and readsseq[base]=='A'): continue
-                        mis+=1
-                tail_mismatch = mis
-
-                hashnum = abs(hash(s[0])) % mapfilenum
-                dic[hashnum].append([s[0],s[2][3:],s[3],str(file_order),str(mismatch),str(tail_mismatch),str(read_length)])
-                count+=1
-                if count>5000000:
-                    for i in range(mapfilenum):
-                        arr = dic[i]
-                        arr = list(map(lambda x:'\t'.join(x)+'\n',arr))
-                        with open(mapreduce_file[i],'a') as ff:
-                            ff.writelines(arr)
-                        dic[i]=[]
-                    count=0
-        file_order+=1
-    if count>0:
-        for i in range(mapfilenum):
-            arr = dic[i]
-            arr = list(map(lambda x:'\t'.join(x)+'\n',arr))
-            with open(mapreduce_file[i],'a') as ff:
-                ff.writelines(arr)
-            dic[i]=[]
-        count=0
+    # for file in partfilelist:
+    # print(file)
+    count=0
+    with open(unmapped_file+'.sam') as f:
+        for line in f:
+            s = line.strip().split('\t')
+            mismatch = int(s[11][s[11].rfind(':')+1:])
+            if mismatch>1: continue
+            read_length = len(s[9])
+            tail_length = ((read_length-1)%step)+1
+            refseq = s[12][-2-tail_length:-2]
+            readsseq = s[9][-tail_length:]
+            strand = s[13][-2:]
+            mis=0
+            for base in range(tail_length):
+                if (refseq[base]!=readsseq[base]):
+                    if strand[0]=='+':
+                        if (refseq[base]=='C' and readsseq[base]=='T'): continue
+                    else:
+                        if (refseq[base]=='G' and readsseq[base]=='A'): continue
+                    mis+=1
+            tail_mismatch = mis
+            s[0] = s[0].strip()
+            read_name = s[0].split('&')[0]
+            file_order = int(s[0].split('&')[1]) - 1
+            hashnum = abs(hash(read_name)) % mapfilenum
+            dic[hashnum].append([read_name,s[2][3:],s[3],str(file_order),str(mismatch),str(tail_mismatch),str(read_length)])
+            count+=1
+            if count>5000000:
+                for i in range(mapfilenum):
+                    arr = dic[i]
+                    arr = list(map(lambda x:'\t'.join(x)+'\n',arr))
+                    with open(mapreduce_file[i],'a') as ff:
+                        ff.writelines(arr)
+                    dic[i]=[]
+                count=0
+        if count>0:
+            for i in range(mapfilenum):
+                arr = dic[i]
+                arr = list(map(lambda x:'\t'.join(x)+'\n',arr))
+                with open(mapreduce_file[i],'a') as ff:
+                    ff.writelines(arr)
+                dic[i]=[]
+            count=0
     return mapreduce_file
 
 
@@ -93,14 +94,14 @@ def reads_combine(filename,args):
                         reads[3]+=tail_mismatch
                         reads[4]=temp[2]-reads[2]
                         join_or_not=True
-                        break
+                        # break
 
-                frac_list=result[name]
+                # frac_list=result[name]
                 if not join_or_not:
-                    frac_list.append(temp)
+                    result[name].append(temp)
             #print(len(result))
     #Delete short fragments
-    print(len(result))
+    # print(len(result))
     del_name=[]
     for name in result:
         nonjoin_num=0
@@ -112,7 +113,7 @@ def reads_combine(filename,args):
             del_name.append(name)
     for name in del_name:
         del result[name]
-    print(len(result))
+    # print(len(result))
     for name in result:
         reads_list = result[name]
         num = len(reads_list)
@@ -147,6 +148,10 @@ def reads_reduce(mapreduce_file,args):
     totalresult={}
     for i in range(mapfilenum):
         print(str(i)+' start!')
+        command = 'sort -k4n,4 -o '+mapreduce_file[i]+' '+mapreduce_file[i]
+        p = Pshell(command)
+        p.change(command)
+        p.process()
         result=reads_combine(mapreduce_file[i],args)
         totalresult.update(result)
         if len(totalresult)>5000000 or i==mapfilenum-1:
@@ -160,18 +165,23 @@ def reads_reduce(mapreduce_file,args):
 
 def GetFastqList(joined_reads,step,length_bin,filter,outputname,originalfile):
     #print(joined_reads)
+    if len(joined_reads)==0: return
     nameset={}
     #Generate a dictionary which contains readsname, start file order and extend fraction number
     for name in joined_reads:
         reads_list = joined_reads[name]
         if len(reads_list)==0: continue
         n = name
+        # print(n,reads_list)
         nameset[n]=[[read[2],read[4]] for read in reads_list]
         #contentset[n]=[['',''] for i in range(len(nameset[n]))]#read_content,read_quality
-    print(len(nameset))
+    # print(len(nameset))
     pos_mark=[{},{}]
     for name in nameset:
         readinfo = nameset[name]
+
+        # print(name, readinfo)
+
         pos=0
         if name[-2:]=='_2':
             pos=1
@@ -185,7 +195,7 @@ def GetFastqList(joined_reads,step,length_bin,filter,outputname,originalfile):
                 pos_mark[pos][name].append([start,end])
             else:
                 pos_mark[pos][name]=[[start,end]]
-    print(len(pos_mark[0]),len(pos_mark[1]))
+    # print(len(pos_mark[0]),len(pos_mark[1]))
     del nameset
     #num=0
     #for n in pos_mark[0]:
@@ -237,7 +247,7 @@ def GetFastqList(joined_reads,step,length_bin,filter,outputname,originalfile):
                     result=[]
         fileorder+=1
         f.close()
-    print(len(result))
+    # print(len(result))
     if len(result)>0:
         with open(outputname+'_finalfastq.fastq','a') as ff:
             ff.writelines(result)
@@ -248,25 +258,23 @@ if __name__=='__main__':
     args={'step':5,
           'binsize':30,
           'filter':40,
-          'outputname':'2384-EPN-CSF_S1_L001_R1_001_trimmed',
-          'originalfile':['2384-EPN-CSF_S1_L001_R1_001_trimmed.fq.gz'],
+          'outputname':'6P1_mapreduce_test',
+          'originalfile':['6P1_notrim_val_1.fq.gz','6P2_notrim_val_2.fq.gz'],
           'mapfilenumber':10,
-          'finish':1
+          'finish':1,
     }
 
-    epn=['2384-EPN-CSF_S1_L001_R1_001_trimmed.part1.fastq',
-         '2384-EPN-CSF_S1_L001_R1_001_trimmed.part2.fastq',
-         '2384-EPN-CSF_S1_L001_R1_001_trimmed.part3.fastq',
-         '2384-EPN-CSF_S1_L001_R1_001_trimmed.part4.fastq',
-         '2384-EPN-CSF_S1_L001_R1_001_trimmed.part5.fastq',
-         '2384-EPN-CSF_S1_L001_R1_001_trimmed.part6.fastq',
-         '2384-EPN-CSF_S1_L001_R1_001_trimmed.part7.fastq',
-         '2384-EPN-CSF_S1_L001_R1_001_trimmed.part8.fastq',
-         '2384-EPN-CSF_S1_L001_R1_001_trimmed.part9.fastq',
-         '2384-EPN-CSF_S1_L001_R1_001_trimmed.part10.fastq',
-         '2384-EPN-CSF_S1_L001_R1_001_trimmed.part11.fastq']
-
-    names = reads_map(epn,args)
+    mr_file = ['6P1_notrim_val_1_val_1_test_0.mapreduce',
+               '6P1_notrim_val_1_val_1_test_1.mapreduce',
+               '6P1_notrim_val_1_val_1_test_2.mapreduce',
+               '6P1_notrim_val_1_val_1_test_3.mapreduce',
+               '6P1_notrim_val_1_val_1_test_4.mapreduce',
+               '6P1_notrim_val_1_val_1_test_5.mapreduce',
+               '6P1_notrim_val_1_val_1_test_6.mapreduce',
+               '6P1_notrim_val_1_val_1_test_7.mapreduce',
+               '6P1_notrim_val_1_val_1_test_8.mapreduce',
+               '6P1_notrim_val_1_val_1_test_9.mapreduce']
+    names = reads_map('6P1_notrim_val_1_val_1_test.unmapped.fastq',args)
     print(names)
     reads_reduce(names,args)
 #    step = args['step']

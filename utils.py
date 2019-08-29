@@ -4,19 +4,19 @@ import subprocess
 import os
 class Pshell():
 
-    def __init__(self,commend):
-        self.commend = commend
+    def __init__(self,command):
+        self.command = command
         self.out = ""
 
-    def change(self,commend):
-        self.commend = commend
+    def change(self,command):
+        self.command = command
 
-    def getcommend(self,commend):
-        return commend
+    def getcommand(self,command):
+        return command
 
     def process(self):
-        print(self.commend)
-        t = subprocess.Popen(self.commend,shell=True,stdout = subprocess.PIPE,stderr = subprocess.PIPE)
+        print(self.command)
+        t = subprocess.Popen(self.command,shell=True,stdout = subprocess.PIPE,stderr = subprocess.PIPE)
         self.out = ''#t.stdout.read().decode()
         self.err = t.stderr.read().decode()
         print(self.err)
@@ -80,13 +80,14 @@ class reads():
 def readsjoin(head,tail,step,xx,binsize):
     
     if (head[0]==tail[0]):
+        if not overlap(head,tail,step,binsize): return False
         if (tail[1]==head[1]+step*(head[2]-tail[2]) or  tail[1]==head[1]-step*(head[2]-tail[2])):
             return True
         if xx!=binsize:
             if xx % step == abs(head[1]-tail[1])%step:
                 return True
     return False
-#[s[2][3:],int(s[3]),file_order,mismatch,0]
+#[s[2][3:],int(s[3]),file_order,mismatch,0] [chr,startpos,fileorder,mismatch,0]
 #chromosome,startpos,order,mismatch,sum
 def overlap(a,b,step,length_bin):
 #Detect 2 kinds of overlapping
