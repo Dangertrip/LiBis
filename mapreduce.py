@@ -19,8 +19,6 @@ def reads_map(unmapped_file,args):
     if 'finish' in args:
         return mapreduce_file
 
-    # for file in partfilelist:
-    # print(file)
     count=0
     with open(unmapped_file+'.sam') as f:
         for line in f:
@@ -144,7 +142,8 @@ def reads_reduce(mapreduce_file,args):
     outputname = args['outputname']
     originalfile = args['originalfile']
     mapfilenum = args['mapfilenumber']
-
+    if os.path.exists(outputname+'_finalfastq.fastq'):
+        os.system('rm '+outputname+'_finalfastq.fastq')
     totalresult={}
     for i in range(mapfilenum):
         print(str(i)+' start!')
@@ -195,17 +194,8 @@ def GetFastqList(joined_reads,step,length_bin,filter,outputname,originalfile):
                 pos_mark[pos][name].append([start,end])
             else:
                 pos_mark[pos][name]=[[start,end]]
-    # print(len(pos_mark[0]),len(pos_mark[1]))
     del nameset
-    #num=0
-    #for n in pos_mark[0]:
-    #    print(n)
-    #    if n in pos_mark[0]:
-    #        print(pos_mark[0][n])
-    #    num+=1
-    #    if num>10: break
     fileorder=0
-    #print(pos_mark)
     result=[]
     for file in originalfile:
         gzmark=False

@@ -70,10 +70,10 @@ def clip_process(inputfileinfo,param,given_bam_file):
     phred=33
     if not given_bam_file:
         if input_file_num==2 :
-            commend='bsmap -a '+inputfileinfo[0]+' -b '+inputfileinfo[1]+' -z '+str(phred)+' -d '+refpath+' -o '+outputname+'.bam -S 123 -n 1 -r 0 1>>log 2>>'+originallogname
+            command='bsmap -a '+inputfileinfo[0]+' -b '+inputfileinfo[1]+' -z '+str(phred)+' -d '+refpath+' -o '+outputname+'.bam -S 123 -n 1 -r 0 1>>log 2>>'+originallogname
         else:
-            commend='bsmap -a '+inputfileinfo[0]+' -z '+str(phred)+' -d '+refpath+'  -o '+outputname+'.bam -S 123 -n 1 -r 0 1>>log 2>>'+originallogname
-        First_try = Pshell(commend)
+            command='bsmap -a '+inputfileinfo[0]+' -z '+str(phred)+' -d '+refpath+'  -o '+outputname+'.bam -S 123 -n 1 -r 0 1>>log 2>>'+originallogname
+        First_try = Pshell(command)
         First_try.process()
 
 #Test1 done
@@ -209,8 +209,8 @@ def clip_process(inputfileinfo,param,given_bam_file):
     reads_reduce(mapreduce_names,args)
     splitlogname = 'BAM_FILE/'+outputname+'_split_log.record'
 
-    commend = 'bsmap -a '+outputname+'_finalfastq.fastq -d '+refpath+' -z '+str(phred)+' -o '+outputname+'_split.bam -S 123 -n 1 -r 0 1>>log 2>> '+splitlogname
-    Bam = Pshell(commend)
+    command = 'bsmap -a '+outputname+'_finalfastq.fastq -d '+refpath+' -z '+str(phred)+' -o '+outputname+'_split.bam -S 123 -n 1 -r 0 1>>log 2>> '+splitlogname
+    Bam = Pshell(command)
     Bam.process()
     splitfilename = outputname+'_split.bam'
 
@@ -249,17 +249,20 @@ def clipmode(name,param, given_bam_file):
     '''
     newn,originallog,splitlog,cleanname=clip_process(name,param, given_bam_file)
 
-    # if (not 'cleanmode' in param) or param['cleanmode']:
-    #     #Set a clean mode and full mode for clipping mode
-    #     cleanupmess(cleanname)
+     if (not 'cleanmode' in param) or param['cleanmode']:
+         #Set a clean mode and full mode for clipping mode
+         cleanupmess(cleanname)
 
     return newn,[originallog,splitlog]
 
 def cleanupmess(name):
     unmapped_file,n1,n2 = name
     outputname = n1[:n1.rfind('_')]
+    print(outputname)
     os.system('rm '+n1)
     os.system('rm '+n2)
+    os.system('rm '+outputname+'.bam.bai')
+    os.system('rm '+outputname+'_split.bam.bai')
     os.system('rm '+unmapped_file)
     os.system('rm '+unmapped_file+'.bam')
     os.system('rm '+unmapped_file+'.sam')
@@ -271,13 +274,14 @@ def cleanupmess(name):
 
 if __name__=="__main__":
     
-    with open("config.txt") as f:
-        lines = f.readlines()
+    cleanupmess(['6P1_notrim_val_1_val_1_test.unmapped.fastq','6P1_notrim_val_1_val_1_test_finalfastq.fastq','6P1_notrim_val_1_val_1_test.sam'])
+    #with open("config.txt") as f:
+    #    lines = f.readlines()
     #import multiprocessing
     #pool = multiprocessing.Pool(processes=2)
-    for l in lines:
-        #pool.apply_async(clip_process,(l,))
-        clip_process(l.strip().split(),{'ref':'/data/dsun/ref/humanigenome/hg19.fa','step':5,'window':30,'cleanmode':True}) #pass file name to clip_process
+    #for l in lines:
+    #    #pool.apply_async(clip_process,(l,))
+    #    clip_process(l.strip().split(),{'ref':'/data/dsun/ref/humanigenome/hg19.fa','step':5,'window':30,'cleanmode':True}) #pass file name to clip_process
     #pool.close()
     #pool.join()
     #p = {'ref':'/data/dsun/ref/humanigenome/hg19.fa','step':5,'window':30,'cleanmode':True}
