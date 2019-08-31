@@ -249,9 +249,9 @@ def clipmode(name,param, given_bam_file):
     '''
     newn,originallog,splitlog,cleanname=clip_process(name,param, given_bam_file)
 
-     if (not 'cleanmode' in param) or param['cleanmode']:
-         #Set a clean mode and full mode for clipping mode
-         cleanupmess(cleanname)
+    if (not 'cleanmode' in param) or param['cleanmode']:
+        #Set a clean mode and full mode for clipping mode
+        cleanupmess(cleanname)
 
     return newn,[originallog,splitlog]
 
