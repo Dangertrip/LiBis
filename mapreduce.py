@@ -155,6 +155,8 @@ def reads_reduce(mapreduce_file,args):
         totalresult.update(result)
         if len(totalresult)>5000000 or i==mapfilenum-1:
             GetFastqList(totalresult,step,length_bin,filter,outputname,originalfile)
+            for name in totalresult:
+                print(name, totalresult[name])
             totalresult={}
         #GetFastqList(result,step,length_bin,filter,outputname,originalfile)
         #totalresult.update(result)
@@ -221,6 +223,13 @@ def GetFastqList(joined_reads,step,length_bin,filter,outputname,originalfile):
             reads = reads.strip()
             quality = quality.strip()
             fqname = name.strip().split()[0][1:]
+            if '/' in fqname or '.' in fqname:
+                split_pos=0
+                if '/' in fqname:
+                    split_pos = fqname.find('/')
+                else:
+                    split_pos = fqname.find('.')
+                fqname = fqname[:split_pos]
             if not fqname in pos_mark[fileorder]: continue
             for i in range(len(pos_mark[fileorder][fqname])):
                 start,end = pos_mark[fileorder][fqname][i]
@@ -248,25 +257,25 @@ if __name__=='__main__':
     args={'step':5,
           'binsize':30,
           'filter':40,
-          'outputname':'6P1_mapreduce_test',
+          'outputname':'hpv_test',
           'originalfile':['6P1_notrim_val_1.fq.gz','6P2_notrim_val_2.fq.gz'],
           'mapfilenumber':10,
           'finish':1,
     }
 
-    mr_file = ['6P1_notrim_val_1_val_1_test_0.mapreduce',
-               '6P1_notrim_val_1_val_1_test_1.mapreduce',
-               '6P1_notrim_val_1_val_1_test_2.mapreduce',
-               '6P1_notrim_val_1_val_1_test_3.mapreduce',
-               '6P1_notrim_val_1_val_1_test_4.mapreduce',
-               '6P1_notrim_val_1_val_1_test_5.mapreduce',
-               '6P1_notrim_val_1_val_1_test_6.mapreduce',
-               '6P1_notrim_val_1_val_1_test_7.mapreduce',
-               '6P1_notrim_val_1_val_1_test_8.mapreduce',
-               '6P1_notrim_val_1_val_1_test_9.mapreduce']
-    names = reads_map('6P1_notrim_val_1_val_1_test.unmapped.fastq',args)
-    print(names)
-    reads_reduce(names,args)
+    mr_file = ['1_0.mapreduce',
+               '1_1.mapreduce',
+               '1_2.mapreduce',
+               '1_3.mapreduce',
+               '1_4.mapreduce',
+               '1_5.mapreduce',
+               '1_6.mapreduce',
+               '1_7.mapreduce',
+               '1_8.mapreduce',
+               '1_9.mapreduce']
+    #names = reads_map('6P1_notrim_val_1_val_1_test.unmapped.fastq',args)
+    #print(names)
+    reads_reduce(mr_file,args)
 #    step = args['step']
 ##    length_bin = args['binsize']
 #    filter = args['filter']
