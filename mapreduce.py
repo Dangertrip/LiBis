@@ -155,8 +155,6 @@ def reads_reduce(mapreduce_file,args):
         totalresult.update(result)
         if len(totalresult)>5000000 or i==mapfilenum-1:
             GetFastqList(totalresult,step,length_bin,filter,outputname,originalfile)
-            for name in totalresult:
-                print(name, totalresult[name])
             totalresult={}
         #GetFastqList(result,step,length_bin,filter,outputname,originalfile)
         #totalresult.update(result)
