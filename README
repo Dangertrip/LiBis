@@ -11,12 +11,12 @@ Here's the steps:
     
     a.Install MOABS and make sure bsmap and mcall added to the PATH. You may run "bsmap" and "mcall" to check the availability.
       
-      wget https://github.com/Dangertrip/LIBisPipe/archive/master.zip
+      wget https://github.com/Dangertrip/LiBis/archive/master.zip
       unzip master.zip
-      chmod +x LIBisPipe-master/LIBisPipe
+      chmod +x LiBis-master/LIBisPipe
       conda install -c bioconda samtools=1.1
 
-      bsmap and mcall are included in LIBisPipe while it may not fit to your environment. Please check whether it works or not. If it doesn't fit your environment, please install it from: https://github.com/sunnyisgalaxy/moabs
+      bsmap and mcall are included in LiBis while it may not fit to your environment. Please check whether it works or not. If it doesn't fit your environment, please install it from: https://github.com/sunnyisgalaxy/moabs
       Please make sure samtools' version is 1.1.
       Please add LIBisPipe to $PATH to run the pipeline.
 
