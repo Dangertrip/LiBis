@@ -7,13 +7,17 @@ import os
 class Fastqc():
 
 
-    def check(self):
+    def check(self,nockeck=False):
         #return True,''
         if not toolcheck('fastqc --help'):
             return False,'Fastqc command not found'
         if os.path.exists('Fastqc'):
-            return False,'Fastqc file or dir exists'
-        os.mkdir('Fastqc')
+            if nockeck:
+                print('Fastqc file or dir exists! But --nockeck enabled, so continue running')
+            else:
+                return False,'Fastqc file or dir exists'
+        else:
+            os.mkdir('Fastqc')
         return True,''
 
     def setpath(self,path):

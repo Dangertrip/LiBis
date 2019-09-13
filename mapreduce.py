@@ -43,7 +43,7 @@ def reads_map(unmapped_file,args):
             read_name = s[0].split('&')[0]
             file_order = int(s[0].split('&')[1]) - 1
             hashnum = abs(hash(read_name)) % mapfilenum
-            dic[hashnum].append([read_name,s[2][3:],s[3],str(file_order),str(mismatch),str(tail_mismatch),str(read_length)])
+            dic[hashnum].append([read_name,s[2],s[3],str(file_order),str(mismatch),str(tail_mismatch),str(read_length)])
             count+=1
             if count>5000000:
                 for i in range(mapfilenum):

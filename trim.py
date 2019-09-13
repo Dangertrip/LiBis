@@ -5,12 +5,16 @@ from utils import *
 import os
 class Trim():
     
-    def check(self):
+    def check(self,nocheck=False):
         if not toolcheck('trim_galore -v'):
             return False,'trim_galore not found!'
         if os.path.exists('Trim'):
-            return False,'"Trim" file/dic exist! Please delete it.'
-        os.mkdir('Trim')
+            if nocheck:
+                print('"Trim" file/dic exist! But --nocheck enabled, so continue running')
+            else:
+                return False,'"Trim" file/dic exist! Please delete it.'
+        else:
+            os.mkdir('Trim')
         return True,''
 
     def setpath(self,path):

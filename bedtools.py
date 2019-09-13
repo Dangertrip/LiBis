@@ -6,7 +6,7 @@ from utils import *
 
 class Bedtools:
 
-    def check(self):
+    def check(self,nockeck=False):
         if not toolcheck('bedtools --version'):
             return False,'Bedtools not found!'
         return True,''

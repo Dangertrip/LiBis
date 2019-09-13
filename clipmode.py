@@ -34,7 +34,7 @@ def writefiles(UnmappedReads,step,length_bin,max_length,outputname):
     # print(Part_Fastq_Filename)
     return unmapped_file
 
-def clip_process(inputfileinfo,param,given_bam_file):
+def clip_process(inputfileinfo,param,given_bam_file,given_label):
     # print(inputfileinfo)
     input_file_num = len(inputfileinfo)
     if input_file_num<=0 or input_file_num>2:
@@ -240,14 +240,14 @@ def clip_process(inputfileinfo,param,given_bam_file):
     return 'BAM_FILE/'+outputname+'_combine.bam',originallogname,splitlogname,[unmapped_file,outputname+'_finalfastq.fastq',outputname+'.sam']
     print("Merge done!\nCreated final bam file called "+outputname+'_combine.bam')
 
-def clipmode(name,param, given_bam_file):
+def clipmode(name,param, given_bam_file,given_label):
     '''
     When we get the mapping result, we should report 
     mapping ratio, mapped reads number, length distribution,
     original mapping ratio, original mapped reads number,
     new generated splitted reads number, new generated splitted reads length
     '''
-    newn,originallog,splitlog,cleanname=clip_process(name,param, given_bam_file)
+    newn,originallog,splitlog,cleanname=clip_process(name,param, given_bam_file,given_label)
 
     if (not 'cleanmode' in param) or param['cleanmode']:
         #Set a clean mode and full mode for clipping mode

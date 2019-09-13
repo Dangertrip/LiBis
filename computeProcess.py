@@ -61,17 +61,18 @@ def computeBsmap(name,bsmap,param):
         raise "Fastq not found"
     clip = param['clip']
     given_bam_files = param['bamfiles']
+    labels = param['label']
     bamname=[]
     bamlogname=[]
-    for n,given_bam in zip(name,given_bam_files):
+    for n,given_bam,given_label in zip(name,given_bam_files,labels):
         if clip:
-            newname,logname = bsmap.clipping(n,param,given_bam)
+            newname,logname = bsmap.clipping(n,param,given_bam,given_label)
         else:
             if given_bam!='':
                 logname = ''
                 newname = given_bam
             else:
-                newname,logname = bsmap.normalmode(n)
+                newname,logname = bsmap.normalmode(n,given_label)
         bamname.append(newname)
         bamlogname.append(logname)
     return bamname,bamlogname
@@ -95,7 +96,7 @@ def computeProcess(param):
     fastqc,trim,bsmap,mcall,bedtools = Fastqc(), Trim(), Bsmap(), Mcall(), Bedtools()
     ProcessObject=[fastqc,trim,bsmap,mcall,bedtools]
     for obj in ProcessObject:
-        status,word=obj.check()
+        status,word=obj.check(param['nocheck'])
         #if not status:
         #    raise Exception(word)
     
@@ -120,12 +121,14 @@ def computeProcess(param):
 
     name,bsmapresult = computeBsmap(name,bsmap,param) 
     resultfilename['bsmap'] = bsmapresult
-    print(resultfilename) 
+    #print(resultfilename) 
     #resultfilename={}
     #resultfilename['trim']=
     #resultfilename['bsmap']
     #name=['BAM_FILE/6P1_notrim_val_1_val_1_combine.bam']
     
+    if 'mcall' not in param or not param['mcall']:
+        return
     
     name,mcallresult = computeMcall(name,mcall,param)
     resultfilename['mcall'] = mcallresult
@@ -142,6 +145,11 @@ def computeProcess(param):
     3. 
     
     '''
+    if 'mcall' not in resultfilename or 'bsmap' not in resultfilename:
+        return
+    if 'plot' not in param or not param['plot']:
+        return
+
     originalfilename = param['name']
     filelabel = param['label']
     marker=['Filename','Label']

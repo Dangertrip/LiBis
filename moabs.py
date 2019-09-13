@@ -9,13 +9,17 @@ import os
 
 class Mcall():
 
-    def check(self):
+    def check(self,nocheck=False):
         #return True,''
         if not toolcheck('mcall'):
             return False,'Mcall not found!'
         if os.path.exists('BED_FILE'):
-            return False,'"BED_FILE" exists! Please delete "BED_FILE"'
-        os.mkdir("BED_FILE")
+            if nocheck:
+                print('"BED_FILE" exists! But --nocheck enabled, so continue running.')
+            else:
+                return False,'"BED_FILE" exists! Please delete "BED_FILE"'
+        else:
+            os.mkdir("BED_FILE")
         return True,''
 
     def setpath(self,path):
@@ -57,7 +61,7 @@ class Mcall():
 class Bsmap():
 
     def __init__(self):
-        self.samtools_version = samtoolsversion()
+        self.samtools_version = 1.1#samtoolsversion()
     
     def samtools_sort(self,p, inputfile, outputfile):
         if self.samtools_version<=1.3:
@@ -67,13 +71,17 @@ class Bsmap():
             p.change('')
             p.process()
     
-    def check(self):
+    def check(self,nocheck=False):
         #return True,''
         if not toolcheck('bsmap -h'):
             return False,'BSMAP not found!'
         if os.path.exists('BAM_FILE'):
-            return False,'"BAM_FILE" exists! Please delete "BAM_FILE"'
-        os.mkdir("BAM_FILE")
+            if nocheck:
+                print('"BAM_FILE" exists! But --nocheck enabled, so continue running.')
+            else:
+                return False,'"BAM_FILE" exists! Please delete "BAM_FILE"'
+        else:
+            os.mkdir("BAM_FILE")
         return True,''
    
     def setpath(self,path):
@@ -90,13 +98,13 @@ class Bsmap():
         '''
         self.refpath = param['ref']
 
-    def normalmode(self,file,param={}):
+    def normalmode(self,file,given_label,param={}):
         '''
         3 muted 96 98 100
         '''
         #f = file.strip().split()
         f = file
-        purename = RemoveFastqExtension(f[0][f[0].rfind('/')+1:])
+        purename = given_label#RemoveFastqExtension(f[0][f[0].rfind('/')+1:])
         name = self.path+purename+'.bam'
         logname = self.path+purename+'.record'
         if len(f)==1:
@@ -111,11 +119,11 @@ class Bsmap():
         p.process()
         return name,logname
 
-    def clipping(self,filenames, param, given_bam_file):
+    def clipping(self,filenames, param, given_bam_file,given_label):
         '''
         I should return a bam file name and a log file name here
         '''
-        newname,log = clipmode(filenames,param, given_bam_file)
+        newname,log = clipmode(filenames,param, given_bam_file,given_label)
         return newname,log
 
 if __name__=="__main__":
