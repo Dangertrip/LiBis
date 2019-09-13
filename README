@@ -11,20 +11,20 @@ Here's the steps:
     
     a.Install MOABS and make sure bsmap and mcall added to the PATH. You may run "bsmap" and "mcall" to check the availability.
       
-      wget https://github.com/Dangertrip/LIBisPipe/archive/master.zip
+      wget https://github.com/Dangertrip/LiBis/archive/master.zip
       unzip master.zip
-      chmod +x LIBisPipe-master/LIBisPipe
+      chmod +x LiBis-master/LiBis
       conda install -c bioconda samtools=1.1
 
-      bsmap and mcall are included in LIBisPipe while it may not fit to your environment. Please check whether it works or not. If it doesn't fit your environment, please install it from: https://github.com/sunnyisgalaxy/moabs
+      bsmap and mcall are included in LiBis while it may not fit to your environment. Please check whether it works or not. If it doesn't fit your environment, please install it from: https://github.com/sunnyisgalaxy/moabs
       Please make sure samtools' version is 1.1.
-      Please add LIBisPipe to $PATH to run the pipeline.
+      Please add LiBis to $PATH to run the pipeline.
 
     b.Install Python3, conda and pip
       Python3 and conda can be downloaded and installed from https://www.anaconda.com/distribution/
       Please make sure than Python version is at least 3.6
 
-      pip install -r LIBisPipe-master/requirements.txt
+      pip install -r LiBis-master/requirements.txt
     
     c.Install Fastqc and make sure fastqc is added to the PATH.
       
@@ -39,9 +39,9 @@ Here's the steps:
       conda install -c bioconda cutadapt
       conda install -c bioconda trim-galore
 
-    f.Run LIBisPipe
+    f.Run LiBis
     
-      LIBisPipe -f 0 -n 6P1_notrim_val_1.fq.gz,6P2_notrim_val_2.fq.gz 6P1_notrim_val_1.fq.gz,6P2_notrim_val_2.fq.gz -c 0 -l s1 s2 -g hg19 -r hg19.fa -qc 1 -t 1
+      LiBis -f 0 -n 6P1_notrim_val_1.fq.gz,6P2_notrim_val_2.fq.gz 6P1_notrim_val_1.fq.gz,6P2_notrim_val_2.fq.gz -c 0 -l s1 s2 -g hg19 -r hg19.fa -qc 1 -t 1
     
 
 2.Run it with docker:
@@ -54,14 +54,14 @@ Here's the steps:
 
     Prepare Docker instance:
 
-        cd LIBisPipe/
-        docker build --tag=libispipe ./
-        docker run libispipe LIBisPipe --help
+        cd LiBis/
+        docker build --tag=libis ./
+        docker run libis LiBis --help
         ### Show help messages
 
         ### Testcase:
 
-        docker run -v /path/to/yourdata:/data/ libispipe LIBisPipe -f 0 -n 6P1_notrim_val_1.fq.gz,6P2_notrim_val_2.fq.gz 6P1_notrim_val_1.fq.gz,6P2_notrim_val_2.fq.gz -c 0 -l s1 s2 -g hg19 -r hg19.fa -qc 1 -t 1 
+        docker run -v /path/to/yourdata:/data/ libis LiBis -f 0 -n 6P1_notrim_val_1.fq.gz,6P2_notrim_val_2.fq.gz 6P1_notrim_val_1.fq.gz,6P2_notrim_val_2.fq.gz -c 0 -l s1 s2 -g hg19 -r hg19.fa -qc 1 -t 1 
 
         ### Please put reference and sample raw data under the dictionary you input.
 
@@ -105,12 +105,22 @@ optional arguments:
                         Different files should be seperated by ','. If there's
                         no bam file for part of the samples, leave the space
                         blank. For example: a.bam,b.bam,,,,f.bam
+  -mcall, --mcall       Run mcall for mapped bams or not
+  -plot, --plot         Generate the final report or not
+  -nc, --nocheck        Skip the checking step for result folders. Using this
+                        parameter may rewrite the previous results.
+  -fullmode, --fullmode
+                        Keep all temp files.
 
 Update record:
 
 Version 0.0.1
     1. Remove all part fastq/bam/sam. Merge all fragments into one file to speed up the computation.
     2. Extension requires the overlap between two fragments.
-    2. Add -bam option to allow users use their own bam file for the first stage mapping.
+    3. Add -bam option to allow users use their own bam file for the first stage mapping.
 
+version 0.0.2
+    1. Decided the name of the software: LiBis, which stands for Low input Bisulfite sequencing 
+    2. Add -mcall, -plot, -nc, -fullmode
+    3. normal mode of bsmap now use label as the filename for generated bam.
 
