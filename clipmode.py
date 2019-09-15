@@ -137,26 +137,25 @@ def clip_process(inputfileinfo,param,given_bam_file,given_label):
                     line4 = f.readline().strip()
                 line1 = line1.strip().split()
                 read_name = line1[0][1:]
-                pair_file_rank = 0
-                if len(line1)>1:
-                    if line1[1][0]>='1' and line1[1][0]<='2':
-                        pair_file_rank = int(line1[1][0])
-                if '/' in read_name or '.' in read_name:
+                pair_file_rank = o
+                # if len(line1)>1:
+                #    if line1[1][0]>='1' and line1[1][0]<='2':
+                #        pair_file_rank = int(line1[1][0])
+                if '/' in read_name: #  or '.' in read_name:
                     split_pos=0
                     if '/' in read_name:
-                        split_pos = read_name.find('/')
-                    else:
-                        split_pos = read_name.find('.')
-                    if input_file_num>1:
-                        pairnum = read_name[split_pos+1]
-                        if pairnum>='1' and pairnum<='2':
-                            pair_file_rank = int(pairnum)
-                        if pair_file_rank==0:
-                            print('Unable to recognize given pairend fastq file format!!')
-                            pair_file_rank = -1
+                        split_pos = read_name.rfind('/')
+                    # else:
+                    #     split_pos = read_name.rfind('.')
+                    # if input_file_num>1:
+                    #     pairnum = read_name[split_pos+1]
+                    #     if pairnum>='1' and pairnum<='2':
+                    #         pair_file_rank = int(pairnum)
+                    #     if pair_file_rank==0:
+                    #         print('Unable to recognize given pairend fastq file format!!')
+                    #         pair_file_rank = -1
                     read_name = read_name[:split_pos]
 
-                string_mark = o
                 if (read_name in set_sam):
                     if set_sam[read_name]==0 or set_sam[read_name]==3: continue
                     if set_sam[read_name]==pair_file_rank: continue
