@@ -221,12 +221,12 @@ def GetFastqList(joined_reads,step,length_bin,filter,outputname,originalfile):
             reads = reads.strip()
             quality = quality.strip()
             fqname = name.strip().split()[0][1:]
-            if '/' in fqname or '.' in fqname:
-                split_pos=0
-                if '/' in fqname:
-                    split_pos = fqname.find('/')
-                else:
-                    split_pos = fqname.find('.')
+            if '/' in fqname: # or '.' in fqname:
+                # split_pos=0
+                # if '/' in fqname:
+                split_pos = fqname.rfind('/')
+                # else:
+                #     split_pos = fqname.find('.')
                 fqname = fqname[:split_pos]
             if not fqname in pos_mark[fileorder]: continue
             for i in range(len(pos_mark[fileorder][fqname])):
@@ -256,21 +256,13 @@ if __name__=='__main__':
           'binsize':30,
           'filter':40,
           'outputname':'hpv_test',
-          'originalfile':['6P1_notrim_val_1.fq.gz','6P2_notrim_val_2.fq.gz'],
-          'mapfilenumber':10,
+          'originalfile':['SRR847423_1.fastq.gz','SRR847423_2.fastq.gz'],
+          'mapfilenumber':2,
           'finish':1,
     }
 
-    mr_file = ['1_0.mapreduce',
-               '1_1.mapreduce',
-               '1_2.mapreduce',
-               '1_3.mapreduce',
-               '1_4.mapreduce',
-               '1_5.mapreduce',
-               '1_6.mapreduce',
-               '1_7.mapreduce',
-               '1_8.mapreduce',
-               '1_9.mapreduce']
+    mr_file = ['SRR847423_1_SRR847423_1_0.mapreduce',
+               'SRR847423_1_SRR847423_1_1.mapreduce']
     #names = reads_map('6P1_notrim_val_1_val_1_test.unmapped.fastq',args)
     #print(names)
     reads_reduce(mr_file,args)
