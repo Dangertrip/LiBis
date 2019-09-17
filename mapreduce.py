@@ -236,7 +236,11 @@ def GetFastqList(joined_reads,step,length_bin,filter,outputname,originalfile):
                     s_name += '_'+str(i)
                 s_read = reads[start:end]
                 s_qua = quality[start:end]
-                s_final = '@'+s_name+'_'+str(fileorder)+'\n'+s_read+'\n'+'+\n'+s_qua+'\n'
+                leftdel = start
+                rightdel = len(reads)-end
+                if rightdel<0:
+                    rightdel=0
+                s_final = '@'+s_name+'_'+str(fileorder)+'_'+str(leftdel)+'_'+str(rightdel)+'\n'+s_read+'\n'+'+\n'+s_qua+'\n'
                 result.append(s_final)
             if len(result)>5000000:
                 with open(outputname+'_finalfastq.fastq','a') as ff:     
@@ -256,13 +260,13 @@ if __name__=='__main__':
           'binsize':30,
           'filter':40,
           'outputname':'hpv_test',
-          'originalfile':['SRR847423_1.fastq.gz','SRR847423_2.fastq.gz'],
+          'originalfile':['D15_S1_L001_R1_001.fastq.gz'],
           'mapfilenumber':2,
           'finish':1,
     }
 
-    mr_file = ['SRR847423_1_SRR847423_1_0.mapreduce',
-               'SRR847423_1_SRR847423_1_1.mapreduce']
+    mr_file = ['D15_S1_L001_R1_001_trimmed_0.mapreduce',
+               'D15_S1_L001_R1_001_trimmed_1.mapreduce']
     #names = reads_map('6P1_notrim_val_1_val_1_test.unmapped.fastq',args)
     #print(names)
     reads_reduce(mr_file,args)

@@ -124,3 +124,11 @@ version 0.0.2
     2. Add -mcall, -plot, -nc, -fullmode
     3. normal mode of bsmap now use label as the filename for generated bam.
 
+version 0.0.3
+    1. Fixed reads name bug, remove the redundant modification of reads name like "@SRR001666.1". Keep the removal of "/1" or "/2" at the end of the reads.
+    2. Add left cut length and right cut length to the reads name. Now the reads name contains 4 fields at the end divided by "_":
+        The first number represent the mate, which file does the read come from. 
+        The second one means the rank of fragment from the reads(For example, if there are two fragments clipped from one reads, the second field will be 0 and 1). 
+        The third number means the left cut length
+        The forth number means the right cut length
+
