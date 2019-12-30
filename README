@@ -1,72 +1,86 @@
-There are two ways to run LiBis:
+# LiBis
 
+Methylation information of cell-free DNA in cerebrospinal fluid (CSF), plasma and other body fluids has been utilized to diagnose early-stage diseases and predict therapy response. However, in common clinical settings only a very low amount of cell-free DNA can be purified, usually in the range of a few dozen nanograms. Even worse is that the cfDNA is fragmented and peaked around 120 bases. Whole genome bisulfite sequencing (WGBS), the gold standard to measure DNA methylation, on such a low amount of fragmented DNA molecules introduces a critical data analysis challenge, which is the low mapping ratio. This, in turn, generated low sequencing depth of each CpG and low coverage of genome-wide CpGs sites. The problem of insufficient informative CpGs became the bottleneck of the clinical application of cell-free DNA WGBS assays. Hence, we developed LiBis, a novel method for low input bisulfite sequencing data alignment. By dynamically clipping initially unmapped reads and remapping clipped fragments, we conservatively rescued those reads and uniquely aligned them to the genome. With much improved mapping ratio, LiBis as an integrative toolkit increases the number of informative CpGs and the precision of methylation status of each CpG. High sensitivity and cost efficiency achieved by LiBis for low input samples allow discoveries of genetic and epigenetic features for downstream analysis and biomarker identification from liquid biopsy.
 
-If you want to run clipmode of LiBis, please change "-c 0" in command to "-c 1" 
+## Getting Started
 
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
-1.Run it locally without docker:
-In this mode, you will get faster computing speed, but the configuration is more complex.
+### Prerequisites
 
-Here's the steps:
-    
-    a.Install MOABS and make sure bsmap and mcall added to the PATH. You may run "bsmap" and "mcall" to check the availability.
-      
-      wget https://github.com/Dangertrip/LiBis/archive/master.zip
-      unzip master.zip
-      chmod +x LiBis-master/LiBis
-      conda install -c bioconda samtools=1.1
+Install Python3, conda and pip
+Python3 and conda can be downloaded and installed from https://www.anaconda.com/distribution/
+Please make sure than Python version is at least 3.6
+```
+pip install -r LiBis-master/requirements.txt
+```    
 
-      bsmap and mcall are included in LiBis while it may not fit to your environment. Please check whether it works or not. If it doesn't fit your environment, please install it from: https://github.com/sunnyisgalaxy/moabs
-      Please make sure samtools' version is 1.1.
-      Please add LiBis to $PATH to run the pipeline.
+Install Fastqc and make sure fastqc is added to the PATH.
+```      
+conda install -c bioconda fastqc
+```
 
-    b.Install Python3, conda and pip
-      Python3 and conda can be downloaded and installed from https://www.anaconda.com/distribution/
-      Please make sure than Python version is at least 3.6
+Install bedtools
+'''
+conda install -c bioconda bedtools
+'''
 
-      pip install -r LiBis-master/requirements.txt
-    
-    c.Install Fastqc and make sure fastqc is added to the PATH.
-      
-      conda install -c bioconda fastqc
-
-    d.Install bedtools
-
-      conda install -c bioconda bedtools
-
-    e.Install cutadapt and trim-galore
-
+Install cutadapt and trim-galore
+'''
       conda install -c bioconda cutadapt
       conda install -c bioconda trim-galore
+'''
 
-    f.Run LiBis
-    
-      LiBis -f 0 -n 6P1_notrim_val_1.fq.gz,6P2_notrim_val_2.fq.gz 6P1_notrim_val_1.fq.gz,6P2_notrim_val_2.fq.gz -c 0 -l s1 s2 -g hg19 -r hg19.fa -qc 1 -t 1
-    
+Install samtools and MOABS. Please make sure bsmap and mcall are added to the PATH. You may run "bsmap" and "mcall" to check the availability. 
+'''
+conda install -c bioconda moabs
+conda install -c bioconda samtools=1.1
+'''
 
-2.Run it with docker:
-
-    Docker installation:
-        https://docs.docker.com/v17.12/install/
-
-    Check Docker availability:
-        docker --version
-
-    Prepare Docker instance:
-
-        cd LiBis/
-        docker build --tag=libis ./
-        docker run libis LiBis --help
-        ### Show help messages
-
-        ### Testcase:
-
-        docker run -v /path/to/yourdata:/data/ libis LiBis -f 0 -n 6P1_notrim_val_1.fq.gz,6P2_notrim_val_2.fq.gz 6P1_notrim_val_1.fq.gz,6P2_notrim_val_2.fq.gz -c 0 -l s1 s2 -g hg19 -r hg19.fa -qc 1 -t 1 
-
-        ### Please put reference and sample raw data under the dictionary you input.
+### Installing
+bsmap and mcall are included in LiBis while it may not fit to your environment. Please check whether it works or not. If it doesn't fit your environment, please install it from: https://github.com/sunnyisgalaxy/moabs
+Please make sure samtools' version is 1.1.
+Please add LiBis to $PATH to run the pipeline.
+```      
+wget https://github.com/Dangertrip/LiBis/archive/master.zip
+unzip master.zip
+chmod +x LiBis-master/LiBis
+```
 
 
-Parameters in LiBis:
+## Running the tests
+
+Run LiBis
+
+'''    
+LiBis -f 0 -n 6P1_notrim_val_1.fq.gz,6P2_notrim_val_2.fq.gz 6P1_notrim_val_1.fq.gz,6P2_notrim_val_2.fq.gz -c 0 -l s1 s2 -g hg19 -r hg19.fa -qc 1 -t 1
+'''    
+
+## Docker installation
+
+LiBis also supports the Docker installation.
+'''
+wget https://github.com/Dangertrip/LiBis/archive/master.zip
+unzip master.zip
+cd LiBis-master/
+docker build --tag=libis ./
+docker run libis LiBis --help
+'''
+
+Test case(Please put reference and sample raw data under the dictionary you input.)
+'''
+docker run -v /path/to/yourdata:/data/ libis LiBis -f 0 -n 6P1_notrim_val_1.fq.gz,6P2_notrim_val_2.fq.gz 6P1_notrim_val_1.fq.gz,6P2_notrim_val_2.fq.gz -c 0 -l s1 s2 -g hg19 -r hg19.fa -qc 1 -t 1 
+'''
+
+## Authors
+
+Yue Yin, Jia Li, Jin Li, Minjung Lee, Sibo Zhao, Linlang Guo, Jianfang Li, Mutian Zhang, Yun Huang, Xiao-Nan Li, Deqiang Sun
+
+## License
+
+This project is licensed under the GNU License.
+
+## Parameters in LiBis
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -113,6 +127,8 @@ optional arguments:
                         Keep all temp files.
 
 Update record:
+
+## Releasing information
 
 Version 0.0.1
     1. Remove all part fastq/bam/sam. Merge all fragments into one file to speed up the computation.
