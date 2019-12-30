@@ -1,4 +1,4 @@
-# LiBis
+# LiBis: An ultrasensitive alignment method for low input bisulfite sequencing
 
 Methylation information of cell-free DNA in cerebrospinal fluid (CSF), plasma and other body fluids has been utilized to diagnose early-stage diseases and predict therapy response. However, in common clinical settings only a very low amount of cell-free DNA can be purified, usually in the range of a few dozen nanograms. Even worse is that the cfDNA is fragmented and peaked around 120 bases. Whole genome bisulfite sequencing (WGBS), the gold standard to measure DNA methylation, on such a low amount of fragmented DNA molecules introduces a critical data analysis challenge, which is the low mapping ratio. This, in turn, generated low sequencing depth of each CpG and low coverage of genome-wide CpGs sites. The problem of insufficient informative CpGs became the bottleneck of the clinical application of cell-free DNA WGBS assays. Hence, we developed LiBis, a novel method for low input bisulfite sequencing data alignment. By dynamically clipping initially unmapped reads and remapping clipped fragments, we conservatively rescued those reads and uniquely aligned them to the genome. With much improved mapping ratio, LiBis as an integrative toolkit increases the number of informative CpGs and the precision of methylation status of each CpG. High sensitivity and cost efficiency achieved by LiBis for low input samples allow discoveries of genetic and epigenetic features for downstream analysis and biomarker identification from liquid biopsy.
 
@@ -21,21 +21,21 @@ conda install -c bioconda fastqc
 ```
 
 Install bedtools
-'''
+```
 conda install -c bioconda bedtools
-'''
+```
 
 Install cutadapt and trim-galore
-'''
+```
       conda install -c bioconda cutadapt
       conda install -c bioconda trim-galore
-'''
+```
 
 Install samtools and MOABS. Please make sure bsmap and mcall are added to the PATH. You may run "bsmap" and "mcall" to check the availability. 
-'''
+```
 conda install -c bioconda moabs
 conda install -c bioconda samtools=1.1
-'''
+```
 
 ### Installing
 bsmap and mcall are included in LiBis while it may not fit to your environment. Please check whether it works or not. If it doesn't fit your environment, please install it from: https://github.com/sunnyisgalaxy/moabs
@@ -52,25 +52,25 @@ chmod +x LiBis-master/LiBis
 
 Run LiBis
 
-'''    
+```    
 LiBis -f 0 -n 6P1_notrim_val_1.fq.gz,6P2_notrim_val_2.fq.gz 6P1_notrim_val_1.fq.gz,6P2_notrim_val_2.fq.gz -c 0 -l s1 s2 -g hg19 -r hg19.fa -qc 1 -t 1
-'''    
+```    
 
 ## Docker installation
 
 LiBis also supports the Docker installation.
-'''
+```
 wget https://github.com/Dangertrip/LiBis/archive/master.zip
 unzip master.zip
 cd LiBis-master/
 docker build --tag=libis ./
 docker run libis LiBis --help
-'''
+```
 
 Test case(Please put reference and sample raw data under the dictionary you input.)
-'''
+```
 docker run -v /path/to/yourdata:/data/ libis LiBis -f 0 -n 6P1_notrim_val_1.fq.gz,6P2_notrim_val_2.fq.gz 6P1_notrim_val_1.fq.gz,6P2_notrim_val_2.fq.gz -c 0 -l s1 s2 -g hg19 -r hg19.fa -qc 1 -t 1 
-'''
+```
 
 ## Authors
 
@@ -130,21 +130,21 @@ Update record:
 
 ## Releasing information
 
-Version 0.0.1
-    1. Remove all part fastq/bam/sam. Merge all fragments into one file to speed up the computation.
-    2. Extension requires the overlap between two fragments.
-    3. Add -bam option to allow users use their own bam file for the first stage mapping.
+### Version 0.0.1
+1. Remove all part fastq/bam/sam. Merge all fragments into one file to speed up the computation.
+2. Extension requires the overlap between two fragments.
+3. Add -bam option to allow users use their own bam file for the first stage mapping.
 
-version 0.0.2
-    1. Decided the name of the software: LiBis, which stands for Low input Bisulfite sequencing 
-    2. Add -mcall, -plot, -nc, -fullmode
-    3. normal mode of bsmap now use label as the filename for generated bam.
+### version 0.0.2
+1. Decided the name of the software: LiBis, which stands for Low input Bisulfite sequencing 
+2. Add -mcall, -plot, -nc, -fullmode
+3. normal mode of bsmap now use label as the filename for generated bam.
 
-version 0.0.3
-    1. Fixed reads name bug, remove the redundant modification of reads name like "@SRR001666.1". Keep the removal of "/1" or "/2" at the end of the reads.
-    2. Add left cut length and right cut length to the reads name. Now the reads name contains 4 fields at the end divided by "_":
-        The first number represent the rank of fragment from the reads(For example, if there are two fragments clipped from one reads, the second field will be 0 and 1).  
-        The second one means the mate, which file does the read come from. 
-        The third number means the left cut length
-        The forth number means the right cut length
+### version 0.0.3
+1. Fixed reads name bug, remove the redundant modification of reads name like "@SRR001666.1". Keep the removal of "/1" or "/2" at the end of the reads.
+2. Add left cut length and right cut length to the reads name. Now the reads name contains 4 fields at the end divided by "_":
+3. The first number represent the rank of fragment from the reads(For example, if there are two fragments clipped from one reads, the second field will be 0 and 1).  
+4. The second one means the mate, which file does the read come from. 
+5. The third number means the left cut length
+6. The forth number means the right cut length
 
