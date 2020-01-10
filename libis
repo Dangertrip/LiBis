@@ -108,7 +108,7 @@ def valid(param):
         raise Exception('Fastq file '+ unexist_filename +' not exist!')
 
     if param['label']==None:
-        param['label'] = [str(i) for i in range(len(param['label']))]
+        param['label'] = [str(i) for i in range(len(param['name']))]
         #raise Exception('Label is needed! Please redefine -l parameter.')
 
     if len(param['label'])!=len(param['name']):
@@ -171,7 +171,7 @@ def input_args():
                'label':(args.label or None), 
                'window':int(inputorN(args.window)), 
                'step':int(inputorN(args.step)), 
-               'threads':args.process, 
+               'threads':str(args.process), 
                'ref':(args.ref or None), 
                'qc':int(args.QualityControl),
                'trim':int(args.trim),

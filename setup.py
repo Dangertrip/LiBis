@@ -20,7 +20,7 @@ except ImportError:
 
 
 
-VERSION = "0.0.3"
+VERSION = "0.0.6"
 
 LICENSE = "MIT"
 
@@ -50,6 +50,6 @@ setup(
         "pysam"
     ],
     scripts=[
-        "LiBis",
+        "bin/LiBis",
     ],
 )

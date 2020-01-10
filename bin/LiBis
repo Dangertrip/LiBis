@@ -3,7 +3,6 @@
 '''
 This file contains all parameter settings, both from command line and XML files. Pipeline check parameters' validation here and format all input
 parameters into proper format.
-The main function is input_args(). 
 '''
 
 
@@ -109,7 +108,8 @@ def valid(param):
         raise Exception('Fastq file '+ unexist_filename +' not exist!')
 
     if param['label']==None:
-        raise Exception('Label is needed! Please redefine -l parameter.')
+        param['label'] = [str(i) for i in range(len(param['name']))]
+        #raise Exception('Label is needed! Please redefine -l parameter.')
 
     if len(param['label'])!=len(param['name']):
         raise Exception('Number of samples and number of labels should be the same!')
@@ -142,15 +142,15 @@ def valid(param):
 
 def input_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-f','--file',type=int, help=r'Required. Enter a number, 0 means using parameter to set up, 1 means using text file to set up',required=True,default=0)
-    parser.add_argument('-sf','--settingfile',help='Required. Setting txt file name. Ignore if -f is 0.')
+    parser.add_argument('-f','--file',type=int, help=r'Enter a number, 0 means using parameter to set up, 1 means using text file to set up',default=0)
+    parser.add_argument('-sf','--settingfile',help='Setting txt file name. Ignore if -f is 0.')
     parser.add_argument('-n','--name',nargs="*",help=r'Required. Fastq file name. ')
     parser.add_argument('-c','--clip',help=r'Clip mode. 0 means close. 1 means open. default: 0',type=int,default=0)
-    parser.add_argument('-l','--label',nargs="*",help=r'Required. Labels for samples')
-    parser.add_argument('-g','--genome',help='Required. Genome the reference belong to.(Use for plotting) hg18/hg19/mm10/mm9 and so on. Plotting script will not avaliable if leave it blank')
+    parser.add_argument('-l','--label',nargs="*",help=r'Labels for samples')
+    parser.add_argument('-g','--genome',help='Genome the reference belong to.(Use for plotting) hg18/hg19/mm10/mm9 and so on. Plotting script will not avaliable if leave it blank. default=hg38.',default='hg38')
     parser.add_argument('-w','--window',type=int,help=r'Window length for clipping mode, default=30',default=30)
     parser.add_argument('-s','--step',type=int,help=r'Step size for clipping mode.',default=5)
-    parser.add_argument('-p','--process',type=int,help=r'Process using for one pipeline. Normally bsmap will cost 8 cpu number. So total will be 8p.',default=1)
+    parser.add_argument('-p','--process',type=int,help=r'Process using for one pipeline. Normally bsmap will cost 8 cpu number. So total will be 8p.',default=8)
     parser.add_argument('-r','--ref',help=r'Required. Reference genome file name.')
     parser.add_argument('-qc','--QualityControl',help=r'Do(1) quality control or not(0)',default=True,required=False)
     parser.add_argument('-t','--trim',help=r"Do(1) trimming or not(0).",default=True,required=False)
@@ -171,7 +171,7 @@ def input_args():
                'label':(args.label or None), 
                'window':int(inputorN(args.window)), 
                'step':int(inputorN(args.step)), 
-               'process':int(inputorN(args.step)), 
+               'threads':str(args.process), 
                'ref':(args.ref or None), 
                'qc':int(args.QualityControl),
                'trim':int(args.trim),
@@ -190,10 +190,15 @@ def input_args():
     valid(param)
     return param
 
+
+def main():
+    computeProcess(input_args())
+
 if __name__=="__main__":
+    main()
     #print(time.time())
-    param=input_args()
-    computeProcess(param)
+    #param=input_args()
+    #computeProcess(param)
     #print(time.time())
 
 

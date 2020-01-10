@@ -88,7 +88,7 @@ def clip_process(inputfileinfo,param,given_bam_file,given_label):
     #with open(outputname+".sam") as sam:
     #second column in sam file: 64, mate 1; 128, mate 2;
     #    samlines = sam.readlines()
-    #set_sam = {}
+    set_sam = {}
     bam_file_name = outputname+'.bam'
     if given_bam_file:
         bam_file_name = given_bam_file
