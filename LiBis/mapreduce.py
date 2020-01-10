@@ -1,4 +1,4 @@
-from utils import *
+from .utils import *
 import os
 import gzip
 import pysam
