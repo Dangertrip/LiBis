@@ -95,8 +95,10 @@ def computeMcall(name,mcall,param):
 def computeProcess(param):
     fastqc,trim,bsmap,mcall,bedtools = Fastqc(), Trim(), Bsmap(), Mcall(), Bedtools()
     ProcessObject=[fastqc,trim,bsmap,mcall,bedtools]
-    for obj in ProcessObject:
-        status,word=obj.check(param['nocheck'])
+
+    if not param['moabs']:
+        for obj in ProcessObject:
+            status,word=obj.check(param['nocheck'])
         #if not status:
         #    raise Exception(word)
     
@@ -236,7 +238,7 @@ def computeProcess(param):
     pos=abspath.find('computeProcess')
     abspath = abspath[:pos]
     os.system('cp '+abspath+'result.html RESULT/')
-    os.system('cp -r '+abspath+'lib RESULT/')
+    os.system('cp -r '+abspath+'jslib RESULT/')
 
         
     

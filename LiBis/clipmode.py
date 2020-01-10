@@ -50,6 +50,8 @@ def clip_process(inputfileinfo,param,given_bam_file,given_label):
     else:
         purename_bam = given_bam_file[given_bam_file.rfind('/')+1:]
         outputname = RemoveFastqExtension(purename)+'_'+purename_bam[:-4]
+        if param['moabs']:
+            outputname = purename_bam[:-4]
 
 
     # Part_Fastq_Filename=[]
@@ -61,8 +63,14 @@ def clip_process(inputfileinfo,param,given_bam_file,given_label):
     #     if os.path.exists(name):
     #         os.system('rm '+name)
 
+    if param['moabs']:
+        store_file_prefix = ''
+    else:
+        store_file_prefix = 'BAM_FILE/'
+
+
     if not given_bam_file:
-        originallogname = 'BAM_FILE/'+outputname+'_originallog.record'
+        originallogname = store_file_prefix+outputname+'_originallog.record'
     else:
         originallogname = ''
 
@@ -187,7 +195,7 @@ def clip_process(inputfileinfo,param,given_bam_file,given_label):
     
     #We've got the splited fastq file, filename is stored in Part_Fastq_Filename
     # for i in range(len(Part_Fastq_Filename)):
-    command = 'bsmap -a '+unmapped_file+' -z '+str(phred)+' -d '+refpath+'  -o '+unmapped_file+'.bam -S 123 -n 1 -r 0 -R -p ' + threads + ' 1>>LiBis_log 2>>BAM_FILE/'+unmapped_file+'_log.txt'
+    command = 'bsmap -a '+unmapped_file+' -z '+str(phred)+' -d '+refpath+'  -o '+unmapped_file+'.bam -S 123 -n 1 -r 0 -R -p ' + threads + ' 1>>LiBis_log 2>>'+store_file_prefix+unmapped_file+'_log.txt'
     Batch_try = Pshell(command)
     Batch_try.process()
     #command = 'samtools view '+unmapped_file+'.bam >'+unmapped_file+'.sam'
@@ -207,7 +215,7 @@ def clip_process(inputfileinfo,param,given_bam_file,given_label):
          }
     mapreduce_names = reads_map(unmapped_file,args)
     reads_reduce(mapreduce_names,args)
-    splitlogname = 'BAM_FILE/'+outputname+'_split_log.record'
+    splitlogname = store_file_prefix+outputname+'_split_log.record'
 
     command = 'bsmap -a '+outputname+'_finalfastq.fastq -d '+refpath+' -z '+str(phred)+' -o '+outputname+'_split.bam -S 123 -n 1 -r 0 -p ' + threads + ' 1>>LiBis_log 2>> '+splitlogname
     Bam = Pshell(command)
@@ -231,19 +239,21 @@ def clip_process(inputfileinfo,param,given_bam_file,given_label):
     filter.change(command)
     filter.process()
     '''
-    filter = Pshell("")
-    if given_bam_file:
-        command='cp '+given_bam_file+' '+outputname+'.bam'
+    if not param["moabs"]:
+        filter = Pshell("")
+        if given_bam_file:
+            command='cp '+given_bam_file+' '+outputname+'.bam'
+            filter.change(command)
+            filter.process()
+        m=Pshell('samtools merge '+store_file_prefix+outputname+'_combine.bam '+outputname+'.bam '+splitfilename)
+        m.process()
+        command='mv '+outputname+'.bam BAM_FILE/'
         filter.change(command)
         filter.process()
-    m=Pshell('samtools merge BAM_FILE/'+outputname+'_combine.bam '+outputname+'.bam '+splitfilename)
-    m.process()
-    command='mv '+outputname+'.bam BAM_FILE/'
-    filter.change(command)
-    filter.process()
-    command='mv '+splitfilename+' BAM_FILE/'
-    filter.change(command)
-    filter.process()
+        command='mv '+splitfilename+' BAM_FILE/'
+        filter.change(command)
+        filter.process()
+
     return 'BAM_FILE/'+outputname+'_combine.bam',originallogname,splitlogname,[unmapped_file,outputname+'_finalfastq.fastq',outputname+'.sam']
     print("Merge done!")#\nCreated final bam file called "+outputname+'_combine.bam')
 

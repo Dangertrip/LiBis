@@ -96,7 +96,7 @@ def BsmapResult(filenames,clip,offered_bamfile):
             ])
             print(result)
             if processed_bam!='':
-                for i in [0,1,4,5,6,7]:
+                for i in [0,1,4,5,6,7,8]:
                     result[-1][i]='Not Available'
     else:
         '''
