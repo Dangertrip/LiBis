@@ -1,0 +1,199 @@
+#!/usr/bin/env python3
+
+'''
+This file contains all parameter settings, both from command line and XML files. Pipeline check parameters' validation here and format all input
+parameters into proper format.
+The main function is input_args(). 
+'''
+
+
+
+
+import time
+import argparse
+import os
+import xml.dom.minidom
+from LiBis.computeProcess import computeProcess
+from LiBis.utils import *
+'''
+    fastq pairs             k pairs
+    sample label            k labels
+    clipmode                True/False
+    clipsetting             window, step
+    ref                     string
+    processes               number
+'''
+
+def bam_file_name_format(s):
+    return s.strip().split(',')
+
+
+def fastq_file_name_format(s):
+    #split samples using blank. split double end files using comma(,);
+    ans=[]
+    for f in s:
+        if ',' in f:
+            ff=f.strip().split(',')
+        else:
+            ff = [f]
+        ans.append(ff)
+    return ans
+
+
+def getxmlcontent(dom,x):
+    temp = dom.getElementsByTagName(x)
+    if len(temp)==0:
+        return None
+    else:
+        return temp[0].firstChild.data
+
+
+def text_process(filename):
+    '''
+    All process for reading config text in XML format.
+    This only works for the mode which use file to input parameters
+    '''
+    dom = xml.dom.minidom.parse(filename)
+    #root = dom.documentElement
+    dic={}
+    tagnames = ['fastq','label','clip','window','step','ref','process','genome','qc','trim','binsize','filter','bam']
+    tagcontent = list(map(lambda x:getxmlcontent(dom,x),tagnames))
+    for i in range(len(tagnames)):
+        name = tagnames[i]
+        content = tagcontent[i]
+        if name=='fastq':
+            dic[name]=fastq_file_name_format(content.strip().split())
+            '''
+            Split fastq file name using comma(,)
+            Format will be like S1_1,S1_2 S2 S3 S4_1,S4_2
+            feed fastq_file_name_format() a name list like above(use split to eliminate the blank)
+            it will return [['S1_1','S1_2'],['S2'],['S3'],['S4_1','S4_2']]
+            '''
+            continue
+        if name=='bam':
+            dic[name]=bam_file_name_format(content)
+        if name=='label':
+            dic[name]=content.strip().split()
+            continue
+        if name=='ref':
+            dic[name]=content
+            continue
+        if name=='genome':
+            dic[name]=content
+        dic[name]=int(content)
+        
+    return dic
+
+def inputorN(v):
+    if v:
+        return v
+    else:
+        return None
+
+def valid(param):
+    '''
+    check whether parameters are valid.
+    1. All fastq file exists.
+    2. Length of labels equals the number of samples.
+    3. Reference genome exists.
+    4. Given bam file length equals the number of samples. Even though some of the samples doesn't have given bam files, the number of commas still should be enough.
+    5. All given bam file exists.
+    6. RESULT folder should be totally new.
+    '''
+    name = param['name']
+    #for n in name:
+    #    for nn in n:
+    #        if not os.path.exists(nn):
+    unexist_filename, exist_status = exist(name)
+    if not exist_status:
+        raise Exception('Fastq file '+ unexist_filename +' not exist!')
+
+    if param['label']==None:
+        raise Exception('Label is needed! Please redefine -l parameter.')
+
+    if len(param['label'])!=len(param['name']):
+        raise Exception('Number of samples and number of labels should be the same!')
+
+    if len(set(param['label']))!=len(param['label']):
+        raise Exception('Repeat labels!')
+
+    if not os.path.exists(param['ref']):
+        raise Exception('Reference '+param['ref']+' not exist!')
+
+    bamfile_list = param['bamfiles']
+    if len(bamfile_list)!=len(param['label']):
+        raise Exception("Number of samples and number of given bam files should be the sam! Please leave the area blank if you don't need it. For example: a.bam,b.bam,,,,f.bam")
+    for name in bamfile_list:
+        if name!='':
+            if not name.endswith('.bam'):
+                raise Exception("Given file "+name+' is not a bam file! Please make sure bam files end with ".bam"!')
+            if not os.path.exists(name):
+                raise Exception("Given bam file "+ unexist_filename +' not exist!')
+  
+    # if param['clip'] and param['trim']:
+    #     print("Don't need to trim for clipping mode! Set -t to 0")
+    if os.path.exists('RESULT'):
+        if param['nocheck']:
+            print("RESULT file exists! --nocheck enabled so continue running.")
+        else:
+            raise Exception("RESULT file exists! Please delete RESULT or change name")
+    else:
+        os.mkdir("RESULT")
+
+def input_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-f','--file',type=int, help=r'Required. Enter a number, 0 means using parameter to set up, 1 means using text file to set up',required=True,default=0)
+    parser.add_argument('-sf','--settingfile',help='Required. Setting txt file name. Ignore if -f is 0.')
+    parser.add_argument('-n','--name',nargs="*",help=r'Required. Fastq file name. ')
+    parser.add_argument('-c','--clip',help=r'Clip mode. 0 means close. 1 means open. default: 0',type=int,default=0)
+    parser.add_argument('-l','--label',nargs="*",help=r'Required. Labels for samples')
+    parser.add_argument('-g','--genome',help='Required. Genome the reference belong to.(Use for plotting) hg18/hg19/mm10/mm9 and so on. Plotting script will not avaliable if leave it blank')
+    parser.add_argument('-w','--window',type=int,help=r'Window length for clipping mode, default=30',default=30)
+    parser.add_argument('-s','--step',type=int,help=r'Step size for clipping mode.',default=5)
+    parser.add_argument('-p','--process',type=int,help=r'Process using for one pipeline. Normally bsmap will cost 8 cpu number. So total will be 8p.',default=1)
+    parser.add_argument('-r','--ref',help=r'Required. Reference genome file name.')
+    parser.add_argument('-qc','--QualityControl',help=r'Do(1) quality control or not(0)',default=True,required=False)
+    parser.add_argument('-t','--trim',help=r"Do(1) trimming or not(0).",default=True,required=False)
+    parser.add_argument('-b','--binsize',type=int,help="Plot setting. Set the bin size for averaging methylation ratio among samples, default=1000k",default=1000000,required=False)
+    parser.add_argument('-ft','--filter',type=int,help="Minimal length for recombined reads",default=40)
+    parser.add_argument('-bam','--bam',help="Processed bam file for the first step. If bam files are offered here, the first step of bsmap will be skipped. BAM files can only be generated by BSMAP. Different files should be seperated by ','. If there's no bam file for part of the samples, leave the space blank. For example: a.bam,b.bam,,,,f.bam", default='', required=False)
+    parser.add_argument('-mcall','--mcall',help="Run mcall for mapped bams or not", action="store_true")
+    parser.add_argument('-plot','--plot',help="Generate the final report or not", action="store_true")
+    parser.add_argument('-nc','--nocheck',help="Skip the checking step for result folders. Using this parameter may rewrite the previous results.", action="store_true")
+    parser.add_argument('-fullmode','--fullmode',help="Keep all temp files.",action='store_true')
+    args = parser.parse_args()
+    #print(args.name) 
+    if args.file==1:
+        param=text_process(args.settingfile)
+    else:
+        param={'name':(fastq_file_name_format(args.name) or None), 
+               'clip':args.clip, 
+               'label':(args.label or None), 
+               'window':int(inputorN(args.window)), 
+               'step':int(inputorN(args.step)), 
+               'process':int(inputorN(args.step)), 
+               'ref':(args.ref or None), 
+               'qc':int(args.QualityControl),
+               'trim':int(args.trim),
+               'genome':args.genome,
+               'bin':args.binsize,
+               'filter_len':int(args.filter),
+               'cleanmode':not args.fullmode,
+               'mcall': args.mcall,
+               'nocheck': args.nocheck,
+               'plot': args.plot
+              }
+        if args.bam:
+            param['bamfiles'] = bam_file_name_format(args.bam)
+        else:
+            param['bamfiles'] = ['']*len(param['name'])
+    valid(param)
+    return param
+
+if __name__=="__main__":
+    #print(time.time())
+    param=input_args()
+    computeProcess(param)
+    #print(time.time())
+
+
