@@ -20,7 +20,7 @@ except ImportError:
 
 
 
-VERSION = "0.0.7"
+VERSION = "0.0.9"
 
 LICENSE = "MIT"
 
