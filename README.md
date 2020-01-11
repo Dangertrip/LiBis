@@ -11,54 +11,63 @@ These instructions will get you a copy of the project up and running on your loc
 Install Python3, conda and pip
 Python3 and conda can be downloaded and installed from https://www.anaconda.com/distribution/
 Please make sure than Python version is at least 3.6
-```
-pip install -r LiBis-master/requirements.txt
-```    
 
-Install Fastqc and make sure fastqc is added to the PATH.
-```      
+Please run following command to make sure python, pip and conda are correctly installed.
+
+```
+python --version
+pip --version
+conda --version
+```
+
+#### Install LiBis by Conda (Recommand)
+
+```
+conda config --add channels defaults
+conda config --add channels bioconda
+conda config --add channels conda-forge
+conda install libis
+```
+
+#### Install LiBis by pip
+LiBis integrates FastQC, Bedtools, Trim-galore, moabs and samtools. These packages can be installed independently or by conda.
+
+```
 conda install -c bioconda fastqc
-```
-
-Install bedtools
-```
 conda install -c bioconda bedtools
-```
-
-Install cutadapt and trim-galore
-```
 conda install -c bioconda cutadapt
 conda install -c bioconda trim-galore
-```
-
-Install samtools and MOABS. Please make sure bsmap and mcall are added to the PATH. You may run "bsmap" and "mcall" to check the availability. 
-```
 conda install -c bioconda moabs
 conda install -c bioconda samtools=1.1
-```
-
-### Installing
-bsmap and mcall are included in LiBis while it may not fit to your environment. Please check whether it works or not. If it doesn't fit your environment, please install it from: https://github.com/sunnyisgalaxy/moabs
-Please make sure samtools' version is 1.1.
-Please add LiBis to $PATH to run the pipeline.
-```      
-wget https://github.com/Dangertrip/LiBis/archive/master.zip
-unzip master.zip
-chmod +x LiBis-master/LiBis
-```
-
-
-## Running the tests
-
-Run LiBis
-
-```    
-LiBis -f 0 -n 6P1_notrim_val_1.fq.gz,6P2_notrim_val_2.fq.gz 6P1_notrim_val_1.fq.gz,6P2_notrim_val_2.fq.gz -c 0 -l s1 s2 -g hg19 -r hg19.fa -qc 1 -t 1
 ```    
 
-## Docker installation
+Check the installation of integrated tools
+
+```
+fastqc --version
+bedtools --version
+trim_galore --version
+moabs
+samtools --version
+```
+Install LiBis by pip
+
+```
+pip install LiBis
+```
+
+#### Check the installation of LiBis
+
+```
+LiBis --help
+```
+
+The parameters of LiBis will be printed to the screen if install successfully.
+
+#### Docker installation
 
 LiBis also supports the Docker installation.
+
 ```
 wget https://github.com/Dangertrip/LiBis/archive/master.zip
 unzip master.zip
@@ -67,7 +76,25 @@ docker build --tag=libis ./
 docker run libis LiBis --help
 ```
 
-Test case(Please put reference and sample raw data under the dictionary you input.)
+## Running test case
+
+### Run LiBis
+
+```
+git clone https://github.com/Dangertrip/LiBis.git
+cd LiBis/LiBis/test/example/
+
+# Run LiBis from begining:
+LiBis -n mate1.fq.gz,mate2.fq.gz mate3.fq.gz,mate4.fq.gz -r /PATH_TO_FASTA_REFERENCE 
+
+# Run LiBis with a original whole reads mapped bam files:
+LiBis -n mate1.fq.gz,mate2.fq.gz mate3.fq.gz,mate4.fq.gz -bam bsmap.bam,bsmap.bam -r /PATH_TO_FASTA_REFERENCE
+```    
+We recommand that the original bam files are also mapped by BSMAP.
+
+
+### Run test case when using Docker(Please put reference and sample raw data under the dictionary you input.)
+
 ```
 docker run -v /path/to/yourdata:/data/ libis LiBis -f 0 -n 6P1_notrim_val_1.fq.gz,6P2_notrim_val_2.fq.gz 6P1_notrim_val_1.fq.gz,6P2_notrim_val_2.fq.gz -c 0 -l s1 s2 -g hg19 -r hg19.fa -qc 1 -t 1 
 ```
@@ -78,7 +105,9 @@ Yue Yin, Jia Li, Jin Li, Minjung Lee, Sibo Zhao, Linlang Guo, Jianfang Li, Mutia
 
 ## License
 
-This project is licensed under the GNU License.
+This project is licensed under the MIT License.
+
+
 
 ## Parameters in LiBis
 
