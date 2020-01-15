@@ -1,27 +1,17 @@
 #!/usr/bin/env python3
-
-'''
-This file contains all parameter settings, both from command line and XML files. Pipeline check parameters' validation here and format all input
-parameters into proper format.
-'''
-
-
-
-
 import time
 import argparse
 import os
+import sys
 import xml.dom.minidom
 from LiBis.computeProcess import computeProcess
 from LiBis.utils import *
-'''
-    fastq pairs             k pairs
-    sample label            k labels
-    clipmode                True/False
-    clipsetting             window, step
-    ref                     string
-    processes               number
-'''
+
+libis_version = '0.0.12'
+
+
+
+
 
 def bam_file_name_format(s):
     return s.strip().split(',')
@@ -166,8 +156,12 @@ def input_args():
     parser.add_argument('-pnf','--pairendfilter',help="Apply pairend filter for all LiBis rescued reads. Only keep reads have uniquely mapped pair by BSMAP or LiBis.", action="store_true")
     parser.add_argument('-rc','--reportclippedregion',help='generate two additional fastq to store clipped region, one from the begining of the reads and the other one from the end.',action='store_true')
     parser.add_argument('-fullmode','--fullmode',help="Keep all temp files.",action='store_true')
+    parser.add_argument('-v','--version',help="Version information",action='store_true')
     args = parser.parse_args()
     #print(args.name) 
+    if args.version:
+        print(libis_version)
+        sys.exit()
     if args.file==1:
         param=text_process(args.settingfile)
     else:

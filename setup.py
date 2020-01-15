@@ -20,7 +20,13 @@ except ImportError:
 
 
 
-VERSION = "0.0.12"
+with open('RELEASE') as f:
+    lines = f.readlines()
+
+version = lines[0]
+version = version.strip().split()[-1]
+
+VERSION = version
 
 LICENSE = "MIT"
 

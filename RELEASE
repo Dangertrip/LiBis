@@ -1,0 +1,31 @@
+## 0.0.12
+1. add -rc. 
+2. All temp fastq files are in GZ format now.
+
+## 0.0.9
+1. add -module, -mm ,and -pnf.
+2. All temp SAM files are replaced by pysam.
+
+## 0.0.7
+Now support installation by pip and conda
+
+## 0.0.3
+1. Fixed reads name bug, remove the redundant modification of reads name like "@SRR001666.1". Keep the removal of "/1" or "/2" at the end of the reads.
+2. Add left cut length and right cut length to the reads name. Now the reads name contains 4 fields at the end divided by "_":
+3. The first number represent the rank of fragment from the reads(For example, if there are two fragments clipped from one reads, the second field will be 0 and 1).
+4. The second number means the mate, which file does the read come from.
+5. The third number means the left cut length
+6. The forth number means the right cut length
+
+## 0.0.2
+1. Decided the name of the software: LiBis, which stands for Low input Bisulfite sequencing
+2. Add -mcall, -plot, -nc, -fullmode
+3. normal mode of bsmap now use label as the filename for generated bam.
+
+## 0.0.1
+1. Remove all part fastq/bam/sam. Merge all fragments into one file to speed up the computation.
+2. Extension requires the overlap between two fragments.
+3. Add -bam option to allow users use their own bam file for the first stage mapping.
+
+
+
