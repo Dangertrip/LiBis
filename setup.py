@@ -20,7 +20,7 @@ except ImportError:
 
 
 
-VERSION = "0.0.9"
+VERSION = "0.0.12"
 
 LICENSE = "MIT"
 
@@ -52,4 +52,5 @@ setup(
     scripts=[
         "bin/LiBis",
     ],
+    include_package_data=True,
 )

@@ -147,6 +147,9 @@ def reads_reduce(mapreduce_file,args):
     outputname = args['outputname']
     originalfile = args['originalfile']
     mapfilenum = args['mapfilenumber']
+    report_clip = args['report_clip']
+    if report_clip==None:
+        report_clip = False
     if os.path.exists(outputname+'_finalfastq.fastq'):
         os.system('rm '+outputname+'_finalfastq.fastq')
     totalresult={}
@@ -159,7 +162,7 @@ def reads_reduce(mapreduce_file,args):
         result=reads_combine(mapreduce_file[i],args)
         totalresult.update(result)
         if len(totalresult)>5000000 or i==mapfilenum-1:
-            GetFastqList(totalresult,step,length_bin,filter,outputname,originalfile)
+            GetFastqList(totalresult,step,length_bin,filter,outputname,originalfile,report_clip)
             totalresult={}
         #GetFastqList(result,step,length_bin,filter,outputname,originalfile)
         #totalresult.update(result)
@@ -167,7 +170,7 @@ def reads_reduce(mapreduce_file,args):
     #GetFastqList(totalresult,step,length_bin,filter,outputname,originalfile)
 
 
-def GetFastqList(joined_reads,step,length_bin,filter,outputname,originalfile):
+def GetFastqList(joined_reads,step,length_bin,filter,outputname,originalfile,report_clip):
     #print(joined_reads)
     if len(joined_reads)==0: return
     nameset={}
@@ -206,6 +209,8 @@ def GetFastqList(joined_reads,step,length_bin,filter,outputname,originalfile):
     del nameset
     fileorder=0
     result=[]
+    result_begin=[]
+    result_end=[]
     for file in originalfile:
         gzmark=False
         if file.endswith('gz'):
@@ -245,23 +250,50 @@ def GetFastqList(joined_reads,step,length_bin,filter,outputname,originalfile):
                     s_name += '_'+str(i)
                 s_read = reads[start:end]
                 s_qua = quality[start:end]
+                if report_clip:
+                    s_read_begin = reads[:start]
+                    s_read_end = reads[end:]
+                    s_qua_begin = quality[:start]
+                    s_qua_end = quality[:end]
                 leftdel = start
                 rightdel = len(reads)-end
                 if rightdel<0:
                     rightdel=0
                 s_final = '@'+s_name+'_'+str(fileorder)+'_'+str(leftdel)+'_'+str(rightdel)+'\n'+s_read+'\n'+'+\n'+s_qua+'\n'
+                s_final = s_final.encode()
+                if report_clip:
+                    s_begin = '@'+s_name+'_'+str(fileorder)+'_'+str(leftdel)+'_'+str(rightdel)+'\n'+s_read_begin+'\n'+'+\n'+s_qua_begin+'\n'
+                    s_end = '@'+s_name+'_'+str(fileorder)+'_'+str(leftdel)+'_'+str(rightdel)+'\n'+s_read_end+'\n'+'+\n'+s_qua_end+'\n'
+                    s_begin, s_end = s_begin.encode(), s_end.encode()
+                    if len(s_read_begin)>0:
+                        result_begin.append(s_begin)
+                    if len(s_read_end)>0:
+                        result_end.append(s_end)
                 result.append(s_final)
-            if len(result)>5000000:
-                with open(outputname+'_finalfastq.fastq','a') as ff:     
+            if len(result)>2000000:
+                with gzip.open(outputname+'_finalfastq.fastq.gz','a') as ff:     
                     ff.writelines(result)
-                    result=[]
+                if report_clip:
+                    with gzip.open(outputname+'_finalfastq_clipped_head.fastq.gz','a') as ff:
+                        ff.writelines(result_begin)
+                    with gzip.open(outputname+'_finalfastq_clipped_tail.fastq.gz','a') as ff:
+                        ff.writelines(result_end)
+                    result_begin=[]
+                    result_end=[]
+                result=[]
+                
         fileorder+=1
         f.close()
     # print(len(result))
     if len(result)>0:
-        with open(outputname+'_finalfastq.fastq','a') as ff:
+        with gzip.open(outputname+'_finalfastq.fastq.gz','a') as ff:
             ff.writelines(result)
- 
+        if report_clip:
+            with gzip.open(outputname+'_finalfastq_clipped_head.fastq.gz','a') as ff:
+                ff.writelines(result_begin)
+            with gzip.open(outputname+'_finalfastq_clipped_tail.fastq.gz','a') as ff:
+                ff.writelines(result_end)
+
 
 if __name__=='__main__':
 

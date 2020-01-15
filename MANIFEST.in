@@ -1,0 +1,4 @@
+include LiBis/chromsize/*
+include LiBis/jslib/*
+include LiBis/jslib/DataTables/jquery.dataTables.min.js
+include LiBis/jslib/jQuery-3.3.1/jquery-3.3.1.min.js
