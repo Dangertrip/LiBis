@@ -249,6 +249,8 @@ def GetFastqList(joined_reads,step,length_bin,filter,outputname,originalfile,rep
                 if len(pos_mark[pos])>1:
                     s_name += '_'+str(i)
                 s_read = reads[start:end]
+                if len(s_read)<filter:
+                    continue
                 s_qua = quality[start:end]
                 if report_clip:
                     s_read_begin = reads[:start]
