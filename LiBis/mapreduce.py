@@ -21,6 +21,7 @@ def reads_map(unmapped_file,args):
         return mapreduce_file
 
     count=0
+
     with pysam.AlignmentFile(unmapped_file+'.bam','r') as f:
         for line in f:
             #s = line.strip().split('\t')
@@ -47,7 +48,7 @@ def reads_map(unmapped_file,args):
             hashnum = abs(hash(read_name)) % mapfilenum
             dic[hashnum].append([read_name,line.reference_name,str(line.reference_start),str(file_order),str(mismatch),str(tail_mismatch),str(read_length)])
             count+=1
-            if count>5000000:
+            if count>10000000:
                 for i in range(mapfilenum):
                     arr = dic[i]
                     arr = list(map(lambda x:'\t'.join(x)+'\n',arr))
@@ -82,23 +83,42 @@ def reads_combine(filename,args):
             mismatch = int(mismatch)
             tail_mismatch = int(tail_mismatch)
             read_length = int(read_length)
-            if (not name in result) or (len(result[name])==0):
-                result[name]=[[chr,startpos,fileorder,mismatch,0]]
+            if name not in result:
+                result[name]=[[chr,startpos,fileorder,mismatch,tail_mismatch,read_length]]
             else:
-                temp = [chr,startpos,fileorder,mismatch,0]
-                #COPIED CODE; NEED TO BE MODIFIED
-                #reads from cliped mapped bam
-                join_or_not=False
-                for reads in result[name]:
-                    if reads[3]+tail_mismatch<=1 and readsjoin(reads,temp,step,read_length,length_bin):
-                        reads[3]+=tail_mismatch
-                        reads[4]=temp[2]-reads[2]
-                        join_or_not=True
-                        # break
+                result[name].append([chr,startpos,fileorder,mismatch,tail_mismatch,read_length])
+    #with open(filename) as f:
+    #    for line in f:
+    for name, content_list in result.items():
+        content_list = sorted(content_list, key=lambda x:x[2])
+            #arr = line.strip().split()
+        chr,startpos,fileorder,mismatch,tail_mismatch,read_length = content_list[0]
+        result_fragment = [[chr,startpos,fileorder,mismatch,0]]
+        for c in content_list[1:]:
+            chr,startpos,fileorder,mismatch,tail_mismatch,read_length = c
+            #startpos = int(startpos)
+            #fileorder = int(fileorder)
+            #mismatch = int(mismatch)
+            #tail_mismatch = int(tail_mismatch)
+            #read_length = int(read_length)
+            #if (not name in result) or (len(result[name])==0):
+            #    result[name]=[[chr,startpos,fileorder,mismatch,0]]
+            #else:
+            temp = [chr,startpos,fileorder,mismatch,0]
+            #COPIED CODE; NEED TO BE MODIFIED
+            #reads from cliped mapped bam
+            join_or_not=False
+            for reads in result_fragment:
+                if reads[3]+tail_mismatch<=1 and readsjoin(reads,temp,step,read_length,length_bin):
+                    reads[3]+=tail_mismatch
+                    reads[4]=temp[2]-reads[2]
+                    join_or_not=True
+                    # break
 
-                # frac_list=result[name]
-                if not join_or_not:
-                    result[name].append(temp)
+            # frac_list=result[name]
+            if not join_or_not:
+                result_fragment.append(temp)
+        result[name] = result_fragment
             #print(len(result))
     #Delete short fragments
     # print(len(result))
@@ -155,10 +175,10 @@ def reads_reduce(mapreduce_file,args):
     totalresult={}
     for i in range(mapfilenum):
         #print(str(i)+' start!')
-        command = 'sort -k4n,4 -o '+mapreduce_file[i]+' '+mapreduce_file[i]
-        p = Pshell(command)
-        p.change(command)
-        p.process()
+        #command = 'sort -k4n,4 -o '+mapreduce_file[i]+' '+mapreduce_file[i]
+        #p = Pshell(command)
+        #p.change(command)
+        #p.process()
         result=reads_combine(mapreduce_file[i],args)
         totalresult.update(result)
         if len(totalresult)>5000000 or i==mapfilenum-1:

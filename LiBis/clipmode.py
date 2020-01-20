@@ -120,7 +120,7 @@ def clip_process(inputfileinfo,param,given_bam_file,given_label):
     bam_file_name = outputname+'.bam'
     if given_bam_file:
         bam_file_name = given_bam_file
-    bam_file = pysam.AlignmentFile(bam_file_name)
+    bam_file = pysam.AlignmentFile(bam_file_name,'rb')
     for line in bam_file:
         #temp = line.strip().split()
         m1 = (line.flag & 64)
@@ -215,7 +215,7 @@ def clip_process(inputfileinfo,param,given_bam_file,given_label):
     
     #We've got the splited fastq file, filename is stored in Part_Fastq_Filename
     # for i in range(len(Part_Fastq_Filename)):
-    command = 'bsmap -a '+unmapped_file+' -z '+str(phred)+' -d '+refpath+'  -o '+unmapped_file[:-3]+'.bam -S 123 -n 1 -r 0 -R -p ' + threads + ' 1>>LiBis_log 2>>'+store_file_prefix+unmapped_file[:-3]+'_log.txt'
+    command = 'bsmap -a '+unmapped_file+' -d '+refpath+'  -o '+unmapped_file[:-3]+'.bam -S 123 -n 1 -r 0 -R -p ' + threads + ' 1>>LiBis_log 2>>'+store_file_prefix+unmapped_file[:-3]+'_log.txt'
     Batch_try = Pshell(command)
     Batch_try.process()
     #command = 'samtools view '+unmapped_file+'.bam >'+unmapped_file+'.sam'
@@ -238,7 +238,7 @@ def clip_process(inputfileinfo,param,given_bam_file,given_label):
     reads_reduce(mapreduce_names,args)
     splitlogname = store_file_prefix+outputname+'_split_log.record'
 
-    command = 'bsmap -a '+outputname+'_finalfastq.fastq.gz -d '+refpath+' -z '+str(phred)+' -o '+outputname+'_split.bam -S 123 -n 1 -r 0 -p ' + threads + ' 1>>LiBis_log 2>> '+splitlogname
+    command = 'bsmap -a '+outputname+'_finalfastq.fastq.gz -d '+refpath+' -o '+outputname+'_split.bam -S 123 -n 1 -r 0 -p ' + threads + ' 1>>LiBis_log 2>> '+splitlogname
     Bam = Pshell(command)
     Bam.process()
     splitfilename = outputname+'_split.bam'
