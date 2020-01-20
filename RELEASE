@@ -1,3 +1,6 @@
+## 0.0.13
+1. Remove 'sort' in mapreduce step
+
 ## 0.0.12
 1. add -rc. 
 2. All temp fastq files are in GZ format now.
