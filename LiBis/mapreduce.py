@@ -44,7 +44,7 @@ def reads_map(unmapped_file,args):
             query_name = line.query_name.split('&')
             #s[0] = s[0].strip()
             read_name = query_name[0]
-            file_order = int(query_name[1]) - 1
+            file_order = int(query_name[1]) 
             hashnum = abs(hash(read_name)) % mapfilenum
             dic[hashnum].append([read_name,line.reference_name,str(line.reference_start),str(file_order),str(mismatch),str(tail_mismatch),str(read_length)])
             count+=1
@@ -87,76 +87,46 @@ def reads_combine(filename,args):
                 result[name]=[[chr,startpos,fileorder,mismatch,tail_mismatch,read_length]]
             else:
                 result[name].append([chr,startpos,fileorder,mismatch,tail_mismatch,read_length])
-    #with open(filename) as f:
-    #    for line in f:
+    print(len(result))
     for name, content_list in result.items():
         content_list = sorted(content_list, key=lambda x:x[2])
-            #arr = line.strip().split()
+        # initialize result_fragment
         chr,startpos,fileorder,mismatch,tail_mismatch,read_length = content_list[0]
         result_fragment = [[chr,startpos,fileorder,mismatch,0]]
+        # Fragment combination
         for c in content_list[1:]:
             chr,startpos,fileorder,mismatch,tail_mismatch,read_length = c
-            #startpos = int(startpos)
-            #fileorder = int(fileorder)
-            #mismatch = int(mismatch)
-            #tail_mismatch = int(tail_mismatch)
-            #read_length = int(read_length)
-            #if (not name in result) or (len(result[name])==0):
-            #    result[name]=[[chr,startpos,fileorder,mismatch,0]]
-            #else:
             temp = [chr,startpos,fileorder,mismatch,0]
-            #COPIED CODE; NEED TO BE MODIFIED
-            #reads from cliped mapped bam
             join_or_not=False
             for reads in result_fragment:
                 if reads[3]+tail_mismatch<=1 and readsjoin(reads,temp,step,read_length,length_bin):
                     reads[3]+=tail_mismatch
                     reads[4]=temp[2]-reads[2]
                     join_or_not=True
-                    # break
-
-            # frac_list=result[name]
             if not join_or_not:
                 result_fragment.append(temp)
-        result[name] = result_fragment
-            #print(len(result))
-    #Delete short fragments
-    # print(len(result))
-    del_name=[]
-    for name in result:
-        nonjoin_num=0
-        reads_list=result[name]
-        #print(reads_list)
-        for i in range(len(reads_list)-1,-1,-1):
-            if reads_list[i][4]<=1 and reads_list[i][3]>0:
-                reads_list.pop(i)
-        if len(reads_list)==0:
-            del_name.append(name)
-        #print(reads_list)
-    for name in del_name:
-        del result[name]
-    # print(len(result))
-    for name in result:
-        reads_list = result[name]
-        num = len(reads_list)
-        del_mark = [0 for i in range(num)]
-        for i in range(num):
-            for j in range(i+1,num):
-                if overlap(result[name][i],result[name][j],step,length_bin):
-                    sss = result[name][i][4]-result[name][j][4]
+        frag_num = len(result_fragment)
+        for i in range(frag_num-1,-1,-1):
+            if result_fragment[i][4]<=1 and result_fragment[i][3]>0:
+                result_fragment.pop(i)
+        frag_num = len(result_fragment)
+        del_mark = [0] * frag_num
+        for i in range(frag_num):
+            for j in range(i+1,frag_num):
+                if overlap(result_fragment[i],result_fragment[j],step,length_bin):
+                    sss = result_fragment[i][4] - result_fragment[j][4]
                     if sss>0: del_mark[j]=1
                     elif sss<0: del_mark[i]=1
                     else:
-                        mis = result[name][i][3]-result[name][j][3]
+                        mis = result_fragment[i][3] - result_fragment[j][3]
                         if mis>0: del_mark[i]=1
                         else: del_mark[j]=1
-        #Only keep the best read which has the most extends and the least mismatches.
-        for i in range(num-1,-1,-1):
+        for i in range(frag_num-1,-1,-1):
             if del_mark[i]==1:
-                reads_list.pop(i)
-        #print(reads_list)
+                result_fragment.pop(i)
+        result[name] = result_fragment
     return result
-    #GetFastqList(result,step,length_bin,filter,outputname,originalfile)
+
 
     
 
@@ -170,63 +140,49 @@ def reads_reduce(mapreduce_file,args):
     report_clip = args['report_clip']
     if report_clip==None:
         report_clip = False
-    if os.path.exists(outputname+'_finalfastq.fastq'):
-        os.system('rm '+outputname+'_finalfastq.fastq')
-    totalresult={}
+    removeFileIfExist(outputname+'_finalfastq.fastq.gz')
+    if report_clip:
+        removeFileIfExist(outputname+'_finalfastq_clipped_head.fastq.gz')
+        removeFileIfExist(outputname+'_finalfastq_clipped_tail.fastq.gz')
+    totalresult=[{},{}]
     for i in range(mapfilenum):
-        #print(str(i)+' start!')
-        #command = 'sort -k4n,4 -o '+mapreduce_file[i]+' '+mapreduce_file[i]
-        #p = Pshell(command)
-        #p.change(command)
-        #p.process()
         result=reads_combine(mapreduce_file[i],args)
-        totalresult.update(result)
-        if len(totalresult)>5000000 or i==mapfilenum-1:
+        
+        #print(len(result))
+
+        pos_mark = [{},{}]
+        for name, reads_list in result.items():#nameset:
+            #readinfo = nameset[name]
+            if len(reads_list)==0: continue
+            pos = 0
+            
+            if name[-2:]=='_1' or name[-2:]=='_2':
+                if name[-2:]=='_2':
+                    pos = 1
+                name = name[:-2]
+            for read in reads_list:#readinfo:
+                order, sum = read[2], read[4]
+                start = (order)*step
+                end = start + step*sum + length_bin
+                if end-start<filter: 
+                    continue
+                if name in pos_mark[pos]:
+                    pos_mark[pos][name].append([start,end])
+                else:
+                    pos_mark[pos][name]=[[start,end]]
+ 
+
+
+        totalresult[0].update(pos_mark[0])
+        totalresult[1].update(pos_mark[1])
+        content_number = len(totalresult[0])+len(totalresult[1])
+        if content_number>5000000 or (i==mapfilenum-1 and content_number>0):
             GetFastqList(totalresult,step,length_bin,filter,outputname,originalfile,report_clip)
             totalresult={}
-        #GetFastqList(result,step,length_bin,filter,outputname,originalfile)
-        #totalresult.update(result)
-        #print(str(i)+' finished! length='+str(len(totalresult)))
-    #GetFastqList(totalresult,step,length_bin,filter,outputname,originalfile)
 
 
 def GetFastqList(joined_reads,step,length_bin,filter,outputname,originalfile,report_clip):
-    #print(joined_reads)
-    if len(joined_reads)==0: return
-    nameset={}
-    #Generate a dictionary which contains readsname, start file order and extend fraction number
-    for name in joined_reads:
-        reads_list = joined_reads[name]
-        if len(reads_list)==0: continue
-        n = name
-        # print(n,reads_list)
-        nameset[n]=[[read[2],read[4]] for read in reads_list]
-        #contentset[n]=[['',''] for i in range(len(nameset[n]))]#read_content,read_quality
-    # print(len(nameset))
-    pos_mark=[{},{}]
-    #print(filter)
-    for name in nameset:
-        readinfo = nameset[name]
-
-        # print(name, readinfo)
-
-        pos=0
-        if name[-2:]=='_2':
-            pos=1
-        if name[-2:]=='_1' or name[-2:]=='_2':
-            name = name[:-2]
-        for order,sum in readinfo:
-            start = (order)*step
-            end = start + step*sum + length_bin
-            #print(start,end,filter)
-            if end-start<filter: 
-                #print(start,end,filter)
-                continue
-            if name in pos_mark[pos]:
-                pos_mark[pos][name].append([start,end])
-            else:
-                pos_mark[pos][name]=[[start,end]]
-    del nameset
+    pos_mark = joined_reads
     fileorder=0
     result=[]
     result_begin=[]
@@ -255,19 +211,15 @@ def GetFastqList(joined_reads,step,length_bin,filter,outputname,originalfile,rep
             reads = reads.strip()
             quality = quality.strip()
             fqname = name.strip().split()[0][1:]
-            if '/' in fqname: # or '.' in fqname:
-                # split_pos=0
-                # if '/' in fqname:
+            if '/' in fqname[-5:]: # or '.' in fqname:
                 split_pos = fqname.rfind('/')
-                # else:
-                #     split_pos = fqname.find('.')
                 fqname = fqname[:split_pos]
             if not fqname in pos_mark[fileorder]: continue
             for i in range(len(pos_mark[fileorder][fqname])):
                 start,end = pos_mark[fileorder][fqname][i]
                 s_name = fqname
-                if len(pos_mark[pos])>1:
-                    s_name += '_'+str(i)
+                #if len(pos_mark[pos])>1:
+                #    s_name += '_'+str(i)
                 s_read = reads[start:end]
                 if len(s_read)<filter:
                     continue
@@ -281,7 +233,7 @@ def GetFastqList(joined_reads,step,length_bin,filter,outputname,originalfile,rep
                 rightdel = len(reads)-end
                 if rightdel<0:
                     rightdel=0
-                s_final = '@'+s_name+'_'+str(fileorder)+'_'+str(leftdel)+'_'+str(rightdel)+'\n'+s_read+'\n'+'+\n'+s_qua+'\n'
+                s_final = '@'+s_name+'_'+str(i)+'_'+str(fileorder)+'_'+str(leftdel)+'_'+str(rightdel)+'\n'+s_read+'\n'+'+\n'+s_qua+'\n'
                 s_final = s_final.encode()
                 if report_clip:
                     s_begin = '@'+s_name+'_'+str(fileorder)+'_'+str(leftdel)+'_'+str(rightdel)+'\n'+s_read_begin+'\n'+'+\n'+s_qua_begin+'\n'
@@ -322,25 +274,27 @@ if __name__=='__main__':
     args={'step':5,
           'binsize':30,
           'filter':30,
-          'outputname':'filter30',
-          'originalfile':['6P1_notrim_val_1.fq.gz'],
+          'outputname':'mate1_bsmap',
+          'originalfile':['mate1.fq.gz','mate2.fq.gz'],
           'mapfilenumber':10,
-          'finish':1,
+          #'finish':1,
+          'report_clip':1
     }
 
-    mr_file = ['6P1_notrim_val_1_test_0.mapreduce',
-               '6P1_notrim_val_1_test_1.mapreduce',
-               '6P1_notrim_val_1_test_2.mapreduce',
-               '6P1_notrim_val_1_test_3.mapreduce',
-               '6P1_notrim_val_1_test_4.mapreduce',
-               '6P1_notrim_val_1_test_5.mapreduce',
-               '6P1_notrim_val_1_test_6.mapreduce',
-               '6P1_notrim_val_1_test_7.mapreduce',
-               '6P1_notrim_val_1_test_8.mapreduce',
-               '6P1_notrim_val_1_test_9.mapreduce']
-    names = reads_map('random_head_tail.unmapped.fastq',args)
+    mr_file = ['mate1_bsmap_0.mapreduce',
+               'mate1_bsmap_1.mapreduce',
+               'mate1_bsmap_2.mapreduce',
+               'mate1_bsmap_3.mapreduce',
+               'mate1_bsmap_4.mapreduce',
+               'mate1_bsmap_5.mapreduce',
+               'mate1_bsmap_6.mapreduce',
+               'mate1_bsmap_7.mapreduce',
+               'mate1_bsmap_8.mapreduce',
+               'mate1_bsmap_9.mapreduce']
+    names = reads_map('mate1_bsmap.unmapped.fastq',args)
     #print(names)
-    reads_reduce(mr_file,args)
+    # reads_reduce(mr_file,args)
+    reads_reduce(names, args)
 #    step = args['step']
 ##    length_bin = args['binsize']
 #    filter = args['filter']

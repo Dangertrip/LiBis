@@ -8,6 +8,14 @@ import gzip
 import os
 from .pairend import *
 
+max_file_length = 500 # 24
+
+_index = []
+for i in range(max_file_length):
+    _index.append(str(i))
+
+reads_cut_buff = {}
+
 def cut(step,length_bin,link,i):
     start = step*i
     end = length_bin + start
@@ -17,25 +25,48 @@ def cut(step,length_bin,link,i):
         return False,''
     return True,link[start:end]
 
-def writefiles(UnmappedReads,step,length_bin,max_length,outputname):
-    # Part_Fastq_Filename = []
+def cut_serial(step, length_bin, read_len, max_file_length):
+    #read_len = len(link)
+    cutted_list = []
+    for i in range(max_file_length):
+        start = step*i
+        end = length_bin + start
+        if end > read_len:
+            end = read_len
+        if start>=end or end-start<=length_bin-step:
+            break
+
+        cutted_list.append([start,end])
+    return cutted_list
+
+
+def writefiles(UnmappedReads,step,length_bin,max_file_length,outputname):
     unmapped_file = outputname + '.unmapped.fastq.gz'
-    for i in range(max_length):
-        filecontent = []
-        for readsname in UnmappedReads:
-            link = UnmappedReads[readsname]
-            mark,cutreads = cut(step,length_bin,link[0],i)
-            if not mark: continue
-            _,cutquality = cut(step,length_bin,link[1],i)
-            fc = '@'+readsname+'&'+str(i+1)+'\n'+cutreads+'\n+\n'+cutquality+'\n'
+    filecontent = []
+    for readsname in UnmappedReads:
+        link = UnmappedReads[readsname]
+        read_length = len(link[0])
+        if read_length in reads_cut_buff:
+            start_end_list = reads_cut_buff[read_length]
+        else:
+            start_end_list = cut_serial(step,length_bin, len(link[0]),max_file_length)
+            reads_cut_buff[read_length] = start_end_list
+        #cutreads = cut_serial(step, length_bin, link[0])
+        #cutquality = cut_serial(step, length_bin, link[0])
+        #mark,cutreads = cut(step,length_bin,link[0],i)
+        #if not mark: continue
+        #_,cutquality = cut(step,length_bin,link[1],i)
+        for ind, start_end in zip(_index,start_end_list):
+            start,end = start_end
+            fc = '@'+readsname+'&'+ind+'\n'+link[0][start:end]+'\n+\n'+link[1][start:end]+'\n'
             fc = fc.encode()
             filecontent.append(fc)
-        if len(filecontent)==0: break
+        #if len(filecontent)==0: break
         # name = outputname+'.part'+str(i+1)+'.fastq'
 
         # Part_Fastq_Filename.append(name)
-        with gzip.open(unmapped_file,'a') as f:
-            f.writelines(filecontent)
+    with gzip.open(unmapped_file,'a') as f:
+        f.writelines(filecontent)
     return unmapped_file
 
 def clip_process(inputfileinfo,param,given_bam_file,given_label):
@@ -103,40 +134,34 @@ def clip_process(inputfileinfo,param,given_bam_file,given_label):
             for r in remove_list:
                 removeFileIfExist(r)
  
-#Test1 done
-    #if not given_bam_file:
-    #    command = 'samtools view '+outputname+'.bam > '+outputname+'.sam'
-    #else:
-    #    command = 'samtools view '+given_bam_file+' > '+outputname+'.sam'
-    #BamFileReader = Pshell(command)
-    #
-    #BamFileReader.process()
-    
-    
-    #with open(outputname+".sam") as sam:
-    #second column in sam file: 64, mate 1; 128, mate 2;
-    #    samlines = sam.readlines()
     set_sam = {}
+    set_sam_pair = set()
     bam_file_name = outputname+'.bam'
     if given_bam_file:
         bam_file_name = given_bam_file
     bam_file = pysam.AlignmentFile(bam_file_name,'rb')
     for line in bam_file:
-        #temp = line.strip().split()
-        m1 = (line.flag & 64)
-        m2 = (line.flag & 128)
-        if m1>0: mate = 1
-        elif m2>0: mate = 2
-        else: mate = 0
         qname = line.query_name
-        if qname in set_sam: set_sam[qname]=3
-        else: set_sam[qname]=mate 
+        next_name = line.next_reference_name
+        next_pos = line.template_length
+        if next_name!=None:
+            if next_pos>0:
+                set_sam_pair.add(qname)
+        else:
+            if input_file_num==2:
+                m1 = (line.flag & 64)
+                m2 = (line.flag & 128)
+                if m1>0: mate = 1
+                elif m2>0: mate = 2
+                else: mate = 0
+            else:
+                mate = 0
+            set_sam[qname]=mate
     
     UnmappedReads = {}
     o=0
     step = param['step']
     length_bin = param['window']
-    max_length = 24#50
 
     
     for filename in inputfileinfo:
@@ -168,62 +193,42 @@ def clip_process(inputfileinfo,param,given_bam_file,given_label):
                 line1 = line1.strip().split()
                 read_name = line1[0][1:]
                 pair_file_rank = o
-                # if len(line1)>1:
-                #    if line1[1][0]>='1' and line1[1][0]<='2':
-                #        pair_file_rank = int(line1[1][0])
-                if '/' in read_name: #  or '.' in read_name:
+                if '/' in read_name:
                     split_pos=0
                     if '/' in read_name:
                         split_pos = read_name.rfind('/')
-                    # else:
-                    #     split_pos = read_name.rfind('.')
-                    # if input_file_num>1:
-                    #     pairnum = read_name[split_pos+1]
-                    #     if pairnum>='1' and pairnum<='2':
-                    #         pair_file_rank = int(pairnum)
-                    #     if pair_file_rank==0:
-                    #         print('Unable to recognize given pairend fastq file format!!')
-                    #         pair_file_rank = -1
                     read_name = read_name[:split_pos]
 
-                if (read_name in set_sam):
-                    if set_sam[read_name]==0 or set_sam[read_name]==3: continue
-                    if set_sam[read_name]==pair_file_rank: continue
-                    if pair_file_rank<0: continue
+                if read_name in set_sam_pair: continue
+                mapped_mate = set_sam.get(read_name,-1)
+                if mapped_mate==0 or mapped_mate==pair_file_rank: continue
+                #if (read_name in set_sam):
+                #    if set_sam[read_name]==0 or set_sam[read_name]==3: continue
+                #    if set_sam[read_name]==pair_file_rank: continue
+                #    if pair_file_rank<0: continue
 
                 if input_file_num>1: read_name+='_'+str(pair_file_rank)
-                #Maybe the mate search method is buggy. Cuz there are different structures of reads name generated by different sequencing machine.
+                # Maybe the mate search method is buggy. Cuz there are different structures of reads name generated by different sequencing machine.
                 # Fixed in issue 1 in github.
-                #fastqlines[i] = line1[0]+'_'+line1[1][0]+' '+line1[1]
                 UnmappedReads[read_name]=[line2,line4]
-                if len(UnmappedReads)>1000000:
-                    writefiles(UnmappedReads,step,length_bin,max_length,outputname)
+                if len(UnmappedReads)>3000000:
+                    writefiles(UnmappedReads,step,length_bin,max_file_length,outputname)
                     UnmappedReads={}
-                    # if len(pfn)>len(Part_Fastq_Filename):
-                    #     Part_Fastq_Filename=pfn
                     
 
-#We've got a dictionary named UnmappedReads = {readsname:[line1,line2,line3,line4]}
-
-#Change cut funtion into cut(setp,length_bin,string,fileorder), return Available(T/F), reads_fraction
     if len(UnmappedReads)>0:
-        writefiles(UnmappedReads,step,length_bin,max_length,outputname)
-        # if len(pfn)>len(Part_Fastq_Filename):
-        #     Part_Fastq_Filename=pfn
+        writefiles(UnmappedReads,step,length_bin,max_file_length,outputname)
     f.close()
     del UnmappedReads
-    
-    #We've got the splited fastq file, filename is stored in Part_Fastq_Filename
+    # sys.exit()    
+    # We've got the splited fastq file, filename is stored in Part_Fastq_Filename
     # for i in range(len(Part_Fastq_Filename)):
     command = 'bsmap -a '+unmapped_file+' -d '+refpath+'  -o '+unmapped_file[:-3]+'.bam -S 123 -n 1 -r 0 -R -p ' + threads + ' 1>>LiBis_log 2>>'+store_file_prefix+unmapped_file[:-3]+'_log.txt'
     Batch_try = Pshell(command)
     Batch_try.process()
-    #command = 'samtools view '+unmapped_file+'.bam >'+unmapped_file+'.sam'
-    #Batch_try = Pshell(command)
-    #Batch_try.process()
 
-   #run bsmap and get bam files named as Part_Fastq_Filename[i].bam
-    #import combine to generate the finalfastq
+    # run bsmap and get bam files named as Part_Fastq_Filename[i].bam
+    # import combine to generate the finalfastq
 
     args={'step':param['step'],
           'binsize':param['window'],

@@ -1,3 +1,11 @@
+## 0.0.15
+1. Combined multiple diction in mapreduce
+2. Reduce the complexity in unmapped reads selection.
+3. Changed to order of unmapped reads in unmapped fastq. Now fragments from one unmapped are adjacent and are ranked by file order from 0 to MAX.
+
+## 0.0.14
+1. Add RELEASE to the pypi package
+
 ## 0.0.13
 1. Remove 'sort' in mapreduce step
 

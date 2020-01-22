@@ -3,6 +3,7 @@ import multiprocessing
 import subprocess
 import os
 import time
+from datetime import datetime
 
 timer = str(int(time.time()))
 
@@ -24,8 +25,9 @@ class Pshell():
         self.out = ''#t.stdout.read().decode()
         self.err = t.stderr.read().decode()
         with open('LiBis_command_log_'+timer+'.txt','a') as f: 
-            f.write(self.command+'\n')
-            f.write(self.err+'\n')
+            f.write(str(datetime.now())+'\tcommand: '+self.command+'\n')
+            f.write('Output:\n')
+            f.write(self.err+'\n\n')
 
     def get_result(self):
         return self.out
