@@ -4,7 +4,7 @@ Tested
 import os
 from .utils import *
 
-class Bedtools:
+class BEDTOOLS:
 
     def check(self,nockeck=False):
         if not toolcheck('bedtools --version'):
@@ -42,6 +42,9 @@ class Bedtools:
     '''
     Two plots from segmented genome average: TSNE/PCA and heatmap
     '''
+
+Bedtools=BEDTOOLS()
+
 if __name__=="__main__":
     b = Bedtools()
     param={'genome':'hg19'}

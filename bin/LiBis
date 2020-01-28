@@ -7,7 +7,7 @@ import xml.dom.minidom
 from LiBis.computeProcess import computeProcess
 from LiBis.utils import *
 
-libis_version = '0.0.15'
+libis_version = '0.1.0'
 
 
 
@@ -157,7 +157,8 @@ def input_args():
     parser.add_argument('-module','--MOABSmodule',help='Run LiBis as MOABS module. Please only apply this when integrating LiBis to MOABS.',action='store_true')
     parser.add_argument('-mm','--multiplemapping',help="Apply multiple mapping after first around bsmap", action="store_true")
     parser.add_argument('-pnf','--pairendfilter',help="Apply pairend filter for all LiBis rescued reads. Only keep reads have uniquely mapped pair by BSMAP or LiBis.", action="store_true")
-    parser.add_argument('-rc','--reportclippedregion',help='generate two additional fastq to store clipped region, one from the begining of the reads and the other one from the end.',action='store_true')
+#    parser.add_argument('-rc','--reportclippedregion',help='generate two additional fastq to store clipped region, one from the begining of the reads and the other one from the end.',action='store_true')
+    parser.add_argument('-gz','--gzip',help='Temporary files are in gz format.',action='store_true')
     parser.add_argument('-fullmode','--fullmode',help="Keep all temp files.",action='store_true')
     parser.add_argument('-v','--version',help="Version information",action='store_true')
     args = parser.parse_args()
@@ -187,7 +188,8 @@ def input_args():
                'moabs': args.MOABSmodule,
                'multiple':args.multiplemapping,
                'pairend':args.pairendfilter,
-               'report_clip':args.reportclippedregion
+               'report_clip':0,
+               'gz':args.gzip,
               }
         if args.bam:
             param['bamfiles'] = bam_file_name_format(args.bam)

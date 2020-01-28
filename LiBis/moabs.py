@@ -7,7 +7,7 @@ from .utils import *
 from .clipmode import clipmode
 import os
 
-class Mcall():
+class MCALL():
 
     def check(self,nocheck=False):
         #return True,''
@@ -58,10 +58,11 @@ class Mcall():
 
 
 
-class Bsmap():
+class BSMAP():
 
     def __init__(self):
         self.samtools_version = 1.1#samtoolsversion()
+        self.has_unsorted = False
     
     def samtools_sort(self,p, inputfile, outputfile):
         if self.samtools_version<=1.3:
@@ -119,12 +120,23 @@ class Bsmap():
         p.process()
         return name,logname
 
+    def hasUnsortMode(self):
+        p = Pshell('bsmap')
+        help_mes = p.process_with_err()
+        if '-U' in help_mes:
+            self.has_unsorted = True
+
     def clipping(self,filenames, param, given_bam_file,given_label):
         '''
         I should return a bam file name and a log file name here
         '''
+        self.hasUnsortMode()
         newname,log = clipmode(filenames,param, given_bam_file,given_label)
         return newname,log
+
+
+Mcall, Bsmap = MCALL(), BSMAP()
+
 
 if __name__=="__main__":
     #mcall = Mcall()

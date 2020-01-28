@@ -4,7 +4,7 @@ Tested
 from .utils import *
 import os
 
-class Fastqc():
+class FASTQC():
 
 
     def check(self,nockeck=False):
@@ -28,6 +28,7 @@ class Fastqc():
         pshell.process()
 
     
+Fastqc = FASTQC()
 
 if __name__=="__main__":
     a = Fastqc()

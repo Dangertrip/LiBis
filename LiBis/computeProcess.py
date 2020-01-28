@@ -93,7 +93,7 @@ def computeMcall(name,mcall,param):
     return bedname,logname
 
 def computeProcess(param):
-    fastqc,trim,bsmap,mcall,bedtools = Fastqc(), Trim(), Bsmap(), Mcall(), Bedtools()
+    fastqc,trim,bsmap,mcall,bedtools = Fastqc, Trim, Bsmap, Mcall, Bedtools
     ProcessObject=[fastqc,trim,bsmap,mcall,bedtools]
 
     if not param['moabs']:

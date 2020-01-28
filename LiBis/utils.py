@@ -29,6 +29,16 @@ class Pshell():
             f.write('Output:\n')
             f.write(self.err+'\n\n')
 
+    def process_with_log(self):
+        t = subprocess.Popen(self.command,shell=True,stdout = subprocess.PIPE,stderr = subprocess.PIPE)
+        out = t.stdout.read().decode()
+        return out
+
+    def process_with_err(self):
+        t = subprocess.Popen(self.command,shell=True,stdout = subprocess.PIPE,stderr = subprocess.PIPE)
+        err = t.stderr.read().decode()
+        return err
+
     def get_result(self):
         return self.out
 
@@ -215,6 +225,35 @@ def fastq_file_name_format(s):
     return ans
 
 
+def update_read(read):
+    l = len(read.seq)
+    read.cigartuples = [(0,l)]
+    read.template_length = l
+
+
+def split_log_localize(read_num_dist, read_len_dist, name):
+    result= ['Number of fragments from one read\tread count\n']
+    total_ori_reads = 0
+    total_frag = 0
+    for i,num in enumerate(read_num_dist):
+        if num==0: continue
+        read_num = i+1
+        result.append(str(read_num)+'\t'+str(num)+'\n')
+        total_ori_reads += num
+        total_frag += num * read_num
+    result.append('Total rescued original reads: '+str(total_ori_reads)+'\n')
+    result.append('Total rescued fragments: '+str(total_frag)+'\n')
+    result.append('Read length\tread count\n')
+    total_bp = 0
+    for i,num in enumerate(read_len_dist):
+        if num==0: continue
+        read_len = i+1
+        result.append(str(read_len)+'\t'+str(num)+'\n')
+        total_bp += read_len*num
+    result.append('Total base pair: '+str(total_bp)+'\n')
+    with open(name,'w') as f:
+        f.writelines(result)
+
 
 if __name__=="__main__":
     #dic=union(['BED_FILE/head_combine.bam.G.bed.short.bed','BED_FILE/head_combine.bam.G.bed.short.bed'])
@@ -236,4 +275,4 @@ if __name__=="__main__":
     #from bsplot import *
     #df = DataFrame(methdata,columns=columns)
     #point_cluster(df,'point_clutser.png')
-    print(samtoolsversion())
+    split_log_localize([1,2,3,4,4,5,], [1,2,3,4,5,6,7], 'aa.temp')

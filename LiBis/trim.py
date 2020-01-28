@@ -3,7 +3,7 @@ Tested
 '''
 from .utils import *
 import os
-class Trim():
+class TRIM():
     
     def check(self,nocheck=False):
         if not toolcheck('trim_galore -v'):
@@ -26,6 +26,8 @@ class Trim():
         else:
             p = Pshell('trim_galore --gz --paired -o '+self.path+' '+filename)
         p.process()
+
+Trim = TRIM()
 
 if __name__=='__main__':
     tr = Trim()

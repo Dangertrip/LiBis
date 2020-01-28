@@ -39,35 +39,66 @@ def cut_serial(step, length_bin, read_len, max_file_length):
         cutted_list.append([start,end])
     return cutted_list
 
+class file_writer:
+    
+    def __init__(self,step,length_bin,max_file_length,outputname):
+        self.step = step
+        self.length_bin = length_bin
+        self.max_file_length = max_file_length
+        self.outputname = outputname
+        self.unmapped_file = outputname + '.unmapped.fastq'
+        self.left_reads = []
+        self.gz = False
+        removeFileIfExist(self.unmapped_file)
+    
+    def gzopen(self):
+        self.gz = True
+        self.unmapped_file = self.unmapped_file + '.gz'
+        removeFileIfExist(self.unmapped_file)
 
-def writefiles(UnmappedReads,step,length_bin,max_file_length,outputname):
-    unmapped_file = outputname + '.unmapped.fastq.gz'
-    filecontent = []
-    for readsname in UnmappedReads:
-        link = UnmappedReads[readsname]
-        read_length = len(link[0])
-        if read_length in reads_cut_buff:
-            start_end_list = reads_cut_buff[read_length]
+    def file_open(self):
+        if self.gz:
+            self.f = gzip.open(self.unmapped_file,'w')
         else:
-            start_end_list = cut_serial(step,length_bin, len(link[0]),max_file_length)
-            reads_cut_buff[read_length] = start_end_list
-        #cutreads = cut_serial(step, length_bin, link[0])
-        #cutquality = cut_serial(step, length_bin, link[0])
-        #mark,cutreads = cut(step,length_bin,link[0],i)
-        #if not mark: continue
-        #_,cutquality = cut(step,length_bin,link[1],i)
-        for ind, start_end in zip(_index,start_end_list):
-            start,end = start_end
-            fc = '@'+readsname+'&'+ind+'\n'+link[0][start:end]+'\n+\n'+link[1][start:end]+'\n'
-            fc = fc.encode()
-            filecontent.append(fc)
-        #if len(filecontent)==0: break
-        # name = outputname+'.part'+str(i+1)+'.fastq'
+            self.f = open(self.unmapped_file,'w')
+        
+    def file_close(self):
 
-        # Part_Fastq_Filename.append(name)
-    with gzip.open(unmapped_file,'a') as f:
-        f.writelines(filecontent)
-    return unmapped_file
+        self.f.close()
+
+    def writefiles(self,UnmappedReads):
+        #unmapped_file = outputname + '.unmapped.fastq.gz'
+        batch_size = 50000
+        filecontent = []
+        for readsname in UnmappedReads:
+            link = UnmappedReads[readsname]
+            read_length = len(link[0])
+            if read_length in reads_cut_buff:
+                start_end_list = reads_cut_buff[read_length]
+            else:
+                start_end_list = cut_serial(self.step,self.length_bin, read_length,self.max_file_length)
+                reads_cut_buff[read_length] = start_end_list
+            for ind, start_end in zip(_index,start_end_list):
+                start,end = start_end
+                fc = '@'+readsname+'&'+ind+'\n'+link[0][start:end]+'\n+\n'+link[1][start:end]+'\n'
+                #if self.gz: fc = fc.encode()
+                filecontent.append(fc)
+            if batch_size-len(filecontent)<=24:
+                while len(filecontent)<batch_size:
+                    t = '@FAKE'+readsname+'\nATCGATCGATCGATCGATCGATCGATCGATCGATCGATCG\n+\n****************************************\n'
+                    if self.gz: t = t.encode()
+                    filecontent.append(t)
+                content = ''.join(filecontent)
+                if self.gz: content = content.encode()
+                self.f.write(content)
+                filecontent = []
+        content = ''.join(filecontent)
+        if self.gz: content = content.encode()
+        self.f.write(content)
+        #with gzip.open(unmapped_file,'a') as f:
+        #    f.writelines(filecontent)
+        #return unmapped_file
+
 
 def clip_process(inputfileinfo,param,given_bam_file,given_label):
     input_file_num = len(inputfileinfo)
@@ -89,8 +120,8 @@ def clip_process(inputfileinfo,param,given_bam_file,given_label):
 
 
     # Part_Fastq_Filename=[]
-    unmapped_file = outputname + '.unmapped.fastq.gz'
-    removeFileIfExist(unmapped_file)
+    #unmapped_file = outputname + '.unmapped.fastq.gz'
+    #removeFileIfExist(unmapped_file)
     
     # for i in range(24):
     #     name = outputname+'.part'+str(i+1)+'.fastq'
@@ -163,6 +194,10 @@ def clip_process(inputfileinfo,param,given_bam_file,given_label):
     step = param['step']
     length_bin = param['window']
 
+    file_w = file_writer(step,length_bin,max_file_length,outputname)
+    if 'gz' in param and param['gz']:
+        file_w.gzopen()
+    file_w.file_open()
     
     for filename in inputfileinfo:
         o+=1
@@ -202,28 +237,29 @@ def clip_process(inputfileinfo,param,given_bam_file,given_label):
                 if read_name in set_sam_pair: continue
                 mapped_mate = set_sam.get(read_name,-1)
                 if mapped_mate==0 or mapped_mate==pair_file_rank: continue
-                #if (read_name in set_sam):
-                #    if set_sam[read_name]==0 or set_sam[read_name]==3: continue
-                #    if set_sam[read_name]==pair_file_rank: continue
-                #    if pair_file_rank<0: continue
 
                 if input_file_num>1: read_name+='_'+str(pair_file_rank)
                 # Maybe the mate search method is buggy. Cuz there are different structures of reads name generated by different sequencing machine.
                 # Fixed in issue 1 in github.
                 UnmappedReads[read_name]=[line2,line4]
+                # Just adjust the Unmapped output size to 50000 and discard all small reads over 50000
                 if len(UnmappedReads)>3000000:
-                    writefiles(UnmappedReads,step,length_bin,max_file_length,outputname)
+                #if len(UnmappedReads)>50000:
+                    file_w.writefiles(UnmappedReads)
                     UnmappedReads={}
                     
 
     if len(UnmappedReads)>0:
-        writefiles(UnmappedReads,step,length_bin,max_file_length,outputname)
+        file_w.writefiles(UnmappedReads)
+    file_w.file_close()
     f.close()
     del UnmappedReads
+    unmapped_file = file_w.unmapped_file
     # sys.exit()    
     # We've got the splited fastq file, filename is stored in Part_Fastq_Filename
     # for i in range(len(Part_Fastq_Filename)):
-    command = 'bsmap -a '+unmapped_file+' -d '+refpath+'  -o '+unmapped_file[:-3]+'.bam -S 123 -n 1 -r 0 -R -p ' + threads + ' 1>>LiBis_log 2>>'+store_file_prefix+unmapped_file[:-3]+'_log.txt'
+
+    command = 'bsmap -a '+unmapped_file+' -d '+refpath+'  -o '+unmapped_file[:unmapped_file.find('fastq')-1]+'.bam -n 1 -r 0 -U -R -p ' + threads + ' 1>>LiBis_log 2>>'+store_file_prefix+unmapped_file[:unmapped_file.find('fastq')-1]+'_log.txt'
     Batch_try = Pshell(command)
     Batch_try.process()
 
@@ -235,17 +271,19 @@ def clip_process(inputfileinfo,param,given_bam_file,given_label):
           'filter':filter,
           'outputname':outputname,
           'originalfile':inputfileinfo,
-          'mapfilenumber':10,
-          'report_clip':param['report_clip']
+          #'mapfilenumber':10,
+          #'report_clip':param['report_clip']
           #'finish':1
          }
-    mapreduce_names = reads_map(unmapped_file[:-3],args)
-    reads_reduce(mapreduce_names,args)
-    splitlogname = store_file_prefix+outputname+'_split_log.record'
 
-    command = 'bsmap -a '+outputname+'_finalfastq.fastq.gz -d '+refpath+' -o '+outputname+'_split.bam -S 123 -n 1 -r 0 -p ' + threads + ' 1>>LiBis_log 2>> '+splitlogname
-    Bam = Pshell(command)
-    Bam.process()
+    reads_num_dist,reads_len_dist = unsortedCombine(unmapped_file[:unmapped_file.find('fastq')-1],args)
+    #mapreduce_names = reads_map(unmapped_file[:-3],args)
+    #reads_reduce(mapreduce_names,args)
+    splitlogname = store_file_prefix+outputname+'_split_log.record'
+    split_log_localize(reads_num_dist,reads_len_dist,splitlogname)
+    #command = 'bsmap -a '+outputname+'_finalfastq.fastq.gz -d '+refpath+' -o '+outputname+'_split.bam -S 123 -n 1 -r 0 -p ' + threads + ' 1>>LiBis_log 2>> '+splitlogname
+    #Bam = Pshell(command)
+    #Bam.process()
     splitfilename = outputname+'_split.bam'
     #------------------------------------------------Pairend filter for LiBis rescued reads----------------------------------------------------------
     if 'pairend' in param and param['pairend']:
@@ -259,7 +297,7 @@ def clip_process(inputfileinfo,param,given_bam_file,given_label):
         #libis_filter(ori_bam, split_bam)
     #------------------------------------------------------------------------------------------------------------------------------------------------
     
-    '''
+    
     command='samtools sort -f -@ '+threads+' '+splitfilename+' '+splitfilename+'.sorted.bam'
     filter = Pshell(command)
     filter.process()
@@ -275,14 +313,14 @@ def clip_process(inputfileinfo,param,given_bam_file,given_label):
     command='mv '+splitfilename+'.sorted.bam '+splitfilename
     filter.change(command)
     filter.process()
-    '''
+    
     if not param["moabs"]:
         filter = Pshell("")
         if given_bam_file:
             command='cp '+given_bam_file+' '+outputname+'.bam'
             filter.change(command)
             filter.process()
-        m=Pshell('samtools merge '+store_file_prefix+outputname+'_combine.bam '+outputname+'.bam '+splitfilename)
+        m=Pshell('samtools merge -f -@ '+threads+' '+store_file_prefix+outputname+'_combine.bam '+outputname+'.bam '+splitfilename)
         m.process()
         command='mv '+outputname+'.bam BAM_FILE/'
         filter.change(command)
@@ -292,7 +330,7 @@ def clip_process(inputfileinfo,param,given_bam_file,given_label):
         filter.process()
 
     return 'BAM_FILE/'+outputname+'_combine.bam',originallogname,splitlogname,[unmapped_file,outputname+'_finalfastq.fastq.gz',outputname+'.sam']
-    print("Merge done!")#\nCreated final bam file called "+outputname+'_combine.bam')
+    #print("Merge done!")#\nCreated final bam file called "+outputname+'_combine.bam')
 
 def clipmode(name,param, given_bam_file,given_label):
     '''
@@ -318,11 +356,12 @@ def cleanupmess(name):
     removeFileIfExist(outputname+'.bam.bai')
     removeFileIfExist(outputname+'_split.bam.bai')
     removeFileIfExist(unmapped_file)
+    unmapped_name = unmapped_file[:unmapped_file.find('fastq')-1]
     removeFileIfExist(unmapped_file[:-3]+'.bam')
-    removeFileIfExist(unmapped_file[:-3]+'.sam')
+    #removeFileIfExist(unmapped_file[:-3]+'.sam')
     removeFileIfExist(unmapped_file[:-3]+'.bam.bai')
-    for i in range(10):
-        removeFileIfExist(outputname+'_'+str(i)+'.mapreduce')
+    #for i in range(10):
+    #    removeFileIfExist(outputname+'_'+str(i)+'.mapreduce')
     
 
 

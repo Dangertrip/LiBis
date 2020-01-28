@@ -269,18 +269,210 @@ def GetFastqList(joined_reads,step,length_bin,filter,outputname,originalfile,rep
                 ff.writelines(result_end)
 
 
+def combine(read1,read2,strand,step):
+    read_length = read2.reference_length
+    tail_length = ((read_length-1)%step)+1
+    if strand=='++' or strand=='--':
+        refseq = read2.get_tag("XR")[-2-tail_length:-2]
+        add_seq = read2.seq[-1*tail_length:]
+        add_qua = read2.query_qualities[-1*tail_length:]
+        read1.query_qualities.extend(add_qua)
+        read1_qua = read1.query_qualities
+        read1.seq = read1.seq + add_seq
+        read1.query_qualities = read1_qua
+    else:
+        refseq = read2.get_tag("XR")[2:2+tail_length]
+        add_seq = read2.seq[:tail_length]
+        add_qua = read2.query_qualities[:tail_length]
+        add_qua.extend(read1.query_qualities)
+        read1.seq = add_seq + read1.seq
+        read1.query_qualities = add_qua
+        
+    read1.reference_start = min(read1.reference_start,read2.reference_start)
+    if read2.get_tag("NM")>0:
+        new_mismatch = read1.get_tag("NM")
+        for i in range(len(refseq)):
+            if refseq[i]==add_seq[i]: continue
+            if strand[0]=='+':
+                if (refseq[i]=='C' and add_seq[i]=='T'): continue
+            else:
+                if (refseq[i]=='G' and add_seq[i]=='A'): continue
+            new_mismatch+=1
+        read1.set_tag("NM",new_mismatch)
+
+
+def fragCombine(param,outf):
+    frags = param['frags']
+    order = param['order']
+    args = param['args']
+    step = args['step']
+    filter = args['filter']
+    window = args['binsize']
+    order_max_gap = window//step
+    #print(len(frags),order)
+    strand = []
+    mismatch = []
+    for fr in frags:
+        strand.append(fr.get_tag("ZS"))
+        mismatch.append(fr.get_tag("NM"))
+        
+    head_frag_length_diff = 0
+    if order[0]==0:
+        head_frag_length_diff = abs(window - frags[0].reference_length)
+
+    result_fragment = [frags[0]]
+    result_order = [order[0]]
+    result_strand = [strand[0]]
+    result_extension = [0]
+    for i in range(1,len(frags)):
+        join_marker = False
+        candidate = frags[i]
+        candidate_order = order[i]
+        for j, read in enumerate(result_fragment):
+            if read.reference_name==candidate.reference_name and strand[i]==result_strand[j]:
+                read_order = result_order[j]
+                order_diff = candidate_order - read_order
+                if strand[i]=='+-' or strand[i]=='-+':
+                    order_diff = order_diff - result_extension[j]
+                if order_diff>=order_max_gap: continue
+                pos_diff = abs(read.reference_start - candidate.reference_start)
+                #print(candidate_order,read_order,result_extension[j],pos_diff, order_diff)
+                #print(result_extension)
+                if order_diff*step==pos_diff or (j==0 and order_diff*step==pos_diff+head_frag_length_diff):
+                    join_marker = True
+                    combine(read, candidate,result_strand[j],step)
+                    update_read(read)
+                    result_extension[j] += 1
+
+
+        if not join_marker:
+            result_fragment.append(frags[i])
+            result_order.append(order[i])
+            result_strand.append(strand[i])
+            result_extension.append(0)
+
+    # Finish combining fragments. Now apply filters towards combined fragments:
+    # 1. 
+    valid_frags = []
+    for i, frag in enumerate(result_fragment):
+        #print(frag.to_string())
+        length = len(frag.seq)
+        if length>=filter:# and frag.get_tag("NM")<=length*0.05:
+            valid_frags.append([frag,result_order[i],result_extension[i]])
+
+    result_fragment = valid_frags
+    valid_frags = []
+    del_mark = [0] * len(result_fragment)
+    frag_num = len(result_fragment)
+    for i in range(frag_num):
+        for j in range(i+1,frag_num):
+            read1, order1, ext1 = result_fragment[i]
+            read2, order2, ext2 = result_fragment[j]
+            gap = order2 - order1
+            if gap<ext1+order_max_gap:
+                ext_diff = ext1-ext2
+                if ext_diff>0:
+                    del_mark[j]=1
+                elif ext_diff<0: del_mark[i]=1
+                else:
+                    mis_diff = read1.get_tag("NM") - read2.get_tag("NM")
+                    if mis_diff>0: del_mark[i]=1
+                    else: del_mark[j]=1
+
+    read_length = []
+    for i,frag in enumerate(result_fragment):
+        if del_mark[i]==0:
+            valid_frags.append(result_fragment[i])
+            read_length.append(result_fragment[i][0].reference_length)
+
+    frag_rank = 0
+
+    for i in range(len(valid_frags)):
+        frag, order, ext = valid_frags[i]
+        frag.query_name = frag.query_name + '_' + str(frag_rank) + '_' + str(order*step) + '_' + str(window+(order+ext)*step)
+        frag.set_tag('XR','')
+        # print(frag.to_string())
+        outf.write(frag)
+        frag_rank += 1
+
+    return frag_rank, read_length
+
+
+
+
+def unsortedCombine(unmapped_file,args):
+    step = args['step']
+    outputname = args['outputname']
+    window = args['binsize']
+    filter = args['filter']
+    least_frags = (filter-window)//step
+
+    result_fragment = []
+
+    feed_in_parameter = {
+        'args' : args,
+    }
+
+    reads_num_dist = [0]*10
+    reads_len_dist = [0]*200
+
+    with pysam.AlignmentFile(unmapped_file+'.bam','r') as f:
+        wf = pysam.AlignmentFile(outputname+"_split.bam", "wb", template=f)
+        frags = []
+        order = []
+        current_reads_name=''
+        for line in f:
+            mismatch = line.get_tag('NM')
+            #if mismatch>1: continue
+            #print(line.query_name)
+            if '&' not in line.query_name[-5:]:
+                continue
+            read_name, o = line.query_name.split('&')
+            line.query_name = read_name
+            #if 'E00488:423:HYHFMCCXY:8:1101:14874:1872' not in read_name: continue
+            #print(line.to_string())
+            if read_name!=current_reads_name:
+                #print(current_reads_name)
+                if current_reads_name!='':
+                    if len(frags)>least_frags:
+                        feed_in_parameter['frags'] = frags
+                        feed_in_parameter['order'] = order
+                        reads_num, reads_len = fragCombine(feed_in_parameter,wf)
+                        reads_num_dist[reads_num] += 1
+                        for l in reads_len:
+                            reads_len_dist[l] += 1
+                    frags = []
+                    order = []
+                frags.append(line)
+                order.append(int(o))
+                current_reads_name = read_name
+            else:
+                frags.append(line)
+                order.append(int(o))
+    if len(frags)>least_frags:
+        feed_in_parameter['frags'] = frags
+        feed_in_parameter['order'] = order
+        reads_num, reads_len = fragCombine(feed_in_parameter,wf)
+        reads_num_dist[reads_num] += 1
+        for l in reads_len:
+            reads_len_dist[l] += 1
+    return reads_num_dist,reads_len_dist
+
 if __name__=='__main__':
 
     args={'step':5,
           'binsize':30,
-          'filter':30,
-          'outputname':'mate1_bsmap',
-          'originalfile':['mate1.fq.gz','mate2.fq.gz'],
-          'mapfilenumber':10,
+          'filter':40,
+          'outputname':'sample1',
+          #'originalfile':['mate1.fq.gz','mate2.fq.gz'],
+          #'mapfilenumber':10,
           #'finish':1,
-          'report_clip':1
+          #'report_clip':1
     }
+    unsortedCombine('mate1_bsmap.multi.unmapped',args)
 
+
+'''
     mr_file = ['mate1_bsmap_0.mapreduce',
                'mate1_bsmap_1.mapreduce',
                'mate1_bsmap_2.mapreduce',
@@ -300,4 +492,4 @@ if __name__=='__main__':
 #    filter = args['filter']
 #    outputname = args['outputname']
 #    originalfile = args['originalfile']
-
+'''
