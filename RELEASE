@@ -1,3 +1,7 @@
+## 0.1.1
+1. Add -u to LiBis first round mapping.
+2. Add reminder for each step.
+
 ## 0.1.0
 1. Add fast mode when BSMAP allows -U to output unsorted reads.
 2. MOABS>=1.3.8.5

@@ -206,7 +206,10 @@ def exist(file):
 
 def removeFileIfExist(name):
     if os.path.exists(name):
+        print('Removing temporary file: '+name+'  ......')
         os.remove(name)
+    else:
+        print("Temporary file doesn't exist: "+name+' !')
 
 
 def bam_file_name_format(s):

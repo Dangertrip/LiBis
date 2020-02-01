@@ -7,7 +7,7 @@ import xml.dom.minidom
 from LiBis.computeProcess import computeProcess
 from LiBis.utils import *
 
-libis_version = '0.1.0'
+libis_version = '0.1.1'
 
 
 
@@ -128,7 +128,7 @@ def valid(param):
     if param['plot']:
         if os.path.exists('RESULT'):
             if param['nocheck']:
-                print("RESULT file exists! --nocheck enabled so continue running.")
+                print('"RESULT" exists! --nocheck enabled so continue running.')
             else:
                 raise Exception("RESULT file exists! Please delete RESULT or change name")
         else:
@@ -158,6 +158,7 @@ def input_args():
     parser.add_argument('-mm','--multiplemapping',help="Apply multiple mapping after first around bsmap", action="store_true")
     parser.add_argument('-pnf','--pairendfilter',help="Apply pairend filter for all LiBis rescued reads. Only keep reads have uniquely mapped pair by BSMAP or LiBis.", action="store_true")
 #    parser.add_argument('-rc','--reportclippedregion',help='generate two additional fastq to store clipped region, one from the begining of the reads and the other one from the end.',action='store_true')
+    parser.add_argument('-bu','--bamu',help='Given processed bam file contains unmapped reads. Only use with -bam is open.',action='store_true')
     parser.add_argument('-gz','--gzip',help='Temporary files are in gz format.',action='store_true')
     parser.add_argument('-fullmode','--fullmode',help="Keep all temp files.",action='store_true')
     parser.add_argument('-v','--version',help="Version information",action='store_true')
@@ -190,6 +191,7 @@ def input_args():
                'pairend':args.pairendfilter,
                'report_clip':0,
                'gz':args.gzip,
+               'bamu': args.bamu
               }
         if args.bam:
             param['bamfiles'] = bam_file_name_format(args.bam)

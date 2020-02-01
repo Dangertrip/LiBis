@@ -10,7 +10,7 @@ class TRIM():
             return False,'trim_galore not found!'
         if os.path.exists('Trim'):
             if nocheck:
-                print('"Trim" file/dic exist! But --nocheck enabled, so continue running')
+                print('"Trim" exist! But --nocheck enabled, so continue running')
             else:
                 return False,'"Trim" file/dic exist! Please delete it.'
         else:

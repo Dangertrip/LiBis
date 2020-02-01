@@ -1,3 +1,4 @@
+from datetime import datetime
 from .mapreduce import *
 import multiprocessing
 #from Comb_fastq import combine
@@ -101,6 +102,7 @@ class file_writer:
 
 
 def clip_process(inputfileinfo,param,given_bam_file,given_label):
+    print('[ '+str(datetime.now())+' ]\tBegin the alignment process with clipping.')
     input_file_num = len(inputfileinfo)
     if input_file_num<=0 or input_file_num>2:
         print("Parameter error in "+l)
@@ -108,6 +110,12 @@ def clip_process(inputfileinfo,param,given_bam_file,given_label):
     refpath = param['ref']
     filter = param['filter_len']
     threads = param['threads']
+    step = param['step']
+    length_bin = param['window']
+    bamu = False
+    if 'bamu' in param and param['bamu']:
+        bamu=True
+
     purename = inputfileinfo[0][inputfileinfo[0].rfind('/')+1:]
     
     if not given_bam_file:
@@ -144,14 +152,16 @@ def clip_process(inputfileinfo,param,given_bam_file,given_label):
         originallogname = ''
 
     phred=33
+    print('[ '+str(datetime.now())+' ]\tBegin the 1st round full reads mapping.')
     if not given_bam_file:
         if input_file_num==2 :
-            command='bsmap -a '+inputfileinfo[0]+' -b '+inputfileinfo[1]+' -z '+str(phred)+' -d '+refpath+' -o '+outputname+'.bam -S 123 -n 1 -r 0 -p ' + threads + ' 1>>LiBis_log 2>>'+originallogname
+            command='bsmap -a '+inputfileinfo[0]+' -b '+inputfileinfo[1]+' -z '+str(phred)+' -d '+refpath+' -o '+outputname+'.bam -U -S 123 -n 1 -r 0 -u -p ' + threads + ' 1>>LiBis_log 2>>'+originallogname
         else:
-            command='bsmap -a '+inputfileinfo[0]+' -z '+str(phred)+' -d '+refpath+'  -o '+outputname+'.bam -S 123 -n 1 -r 0 -p ' + threads + ' 1>>LiBis_log 2>>'+originallogname
+            command='bsmap -a '+inputfileinfo[0]+' -z '+str(phred)+' -d '+refpath+'  -o '+outputname+'.bam -S 123 -n 1 -r 0 -U -u -p ' + threads + ' 1>>LiBis_log 2>>'+originallogname
         First_try = Pshell(command)
         First_try.process()
     # --------------------------------------------Multiple mapping for multiple matched reads in pairend mapping.----------------------------------
+    print('[ '+str(datetime.now())+' ]\tFiltering and clipping unmapped reads.')
     if 'multiple' in param and param['multiple']:
         ori_bam = outputname+'.bam'
         if given_bam_file:
@@ -164,105 +174,122 @@ def clip_process(inputfileinfo,param,given_bam_file,given_label):
             multiple_recovered_bam = bam_merge(ori_bam, multiple_recovered_bam)
             for r in remove_list:
                 removeFileIfExist(r)
- 
-    set_sam = {}
-    set_sam_pair = set()
-    bam_file_name = outputname+'.bam'
-    if given_bam_file:
-        bam_file_name = given_bam_file
-    bam_file = pysam.AlignmentFile(bam_file_name,'rb')
-    for line in bam_file:
-        qname = line.query_name
-        next_name = line.next_reference_name
-        next_pos = line.template_length
-        if next_name!=None:
-            if next_pos>0:
-                set_sam_pair.add(qname)
-        else:
-            if input_file_num==2:
-                m1 = (line.flag & 64)
-                m2 = (line.flag & 128)
-                if m1>0: mate = 1
-                elif m2>0: mate = 2
-                else: mate = 0
-            else:
-                mate = 0
-            set_sam[qname]=mate
-    
-    UnmappedReads = {}
-    o=0
-    step = param['step']
-    length_bin = param['window']
-
     file_w = file_writer(step,length_bin,max_file_length,outputname)
     if 'gz' in param and param['gz']:
         file_w.gzopen()
     file_w.file_open()
+
+    if given_bam_file and not bamu:
+        set_sam = {}
+        set_sam_pair = set()
+        bam_file_name = given_bam_file
+        bam_file = pysam.AlignmentFile(bam_file_name,'rb')
+        for line in bam_file:
+            qname = line.query_name
+            next_name = line.next_reference_name
+            next_pos = line.template_length
+            if next_name!=None:
+                if next_pos>0:
+                    set_sam_pair.add(qname)
+            else:
+                if input_file_num==2:
+                    m1 = (line.flag & 64)
+                    m2 = (line.flag & 128)
+                    if m1>0: mate = 1
+                    elif m2>0: mate = 2
+                    else: mate = 0
+                else:
+                    mate = 0
+                set_sam[qname]=mate
+        
+        UnmappedReads = {}
+        o=0
+        step = param['step']
+        length_bin = param['window']
     
-    for filename in inputfileinfo:
-        o+=1
-        gzmark=False
-        if filename.endswith('.gz'):
-            f = gzip.open(filename)
-            gzmark=True
-        else:
-            f = open(filename)
-
-
-        if f:
-            while 1:
-                if gzmark:
-                    line1 = f.readline().decode()
-                else:
-                    line1 = f.readline()
-                if not line1:
-                    break
-                if gzmark:
-                    line2 = f.readline().decode().strip()
-                    line3 = f.readline().decode()
-                    line4 = f.readline().decode().strip()
-                else:
-                    line2 = f.readline().strip()
-                    line3 = f.readline()
-                    line4 = f.readline().strip()
-                line1 = line1.strip().split()
-                read_name = line1[0][1:]
-                pair_file_rank = o
-                if '/' in read_name:
-                    split_pos=0
+        for filename in inputfileinfo:
+            o+=1
+            gzmark=False
+            if filename.endswith('.gz'):
+                f = gzip.open(filename)
+                gzmark=True
+            else:
+                f = open(filename)
+    
+    
+            if f:
+                while 1:
+                    if gzmark:
+                        line1 = f.readline().decode()
+                    else:
+                        line1 = f.readline()
+                    if not line1:
+                        break
+                    if gzmark:
+                        line2 = f.readline().decode().strip()
+                        line3 = f.readline().decode()
+                        line4 = f.readline().decode().strip()
+                    else:
+                        line2 = f.readline().strip()
+                        line3 = f.readline()
+                        line4 = f.readline().strip()
+                    line1 = line1.strip().split()
+                    read_name = line1[0][1:]
+                    pair_file_rank = o
                     if '/' in read_name:
-                        split_pos = read_name.rfind('/')
-                    read_name = read_name[:split_pos]
-
-                if read_name in set_sam_pair: continue
-                mapped_mate = set_sam.get(read_name,-1)
-                if mapped_mate==0 or mapped_mate==pair_file_rank: continue
-
-                if input_file_num>1: read_name+='_'+str(pair_file_rank)
-                # Maybe the mate search method is buggy. Cuz there are different structures of reads name generated by different sequencing machine.
-                # Fixed in issue 1 in github.
-                UnmappedReads[read_name]=[line2,line4]
-                # Just adjust the Unmapped output size to 50000 and discard all small reads over 50000
-                if len(UnmappedReads)>3000000:
-                #if len(UnmappedReads)>50000:
-                    file_w.writefiles(UnmappedReads)
-                    UnmappedReads={}
-                    
-
-    if len(UnmappedReads)>0:
-        file_w.writefiles(UnmappedReads)
-    file_w.file_close()
-    f.close()
-    del UnmappedReads
+                        split_pos=0
+                        if '/' in read_name:
+                            split_pos = read_name.rfind('/')
+                        read_name = read_name[:split_pos]
+    
+                    if read_name in set_sam_pair: continue
+                    mapped_mate = set_sam.get(read_name,-1)
+                    if mapped_mate==0 or mapped_mate==pair_file_rank: continue
+    
+                    if input_file_num>1: read_name+='_'+str(pair_file_rank)
+                    # Maybe the mate search method is buggy. Cuz there are different structures of reads name generated by different sequencing machine.
+                    # Fixed in issue 1 in github.
+                    UnmappedReads[read_name]=[line2,line4]
+                    # Just adjust the Unmapped output size to 50000 and discard all small reads over 50000
+                    if len(UnmappedReads)>3000000:
+                    #if len(UnmappedReads)>50000:
+                        file_w.writefiles(UnmappedReads)
+                        UnmappedReads={}
+                        
+    
+        if len(UnmappedReads)>0:
+            file_w.writefiles(UnmappedReads)
+        f.close()
+        del UnmappedReads
+        # sys.exit()    
+        # We've got the splited fastq file, filename is stored in Part_Fastq_Filename
+        # for i in range(len(Part_Fastq_Filename)):
+    else:
+        bam_file_name = outputname+'.bam'
+        if given_bam_file:
+            bam_file_name = given_bam_file
+        bam_file = pysam.AlignmentFile(bam_file_name,'rb')
+        UnmappedReads = {}
+        for line in bam_file:
+            if (line.flag & 4 != 4): continue
+            qname = line.query_name
+            seq = line.seq
+            qua = line.qual
+            UnmappedReads[qname] = [seq, qua]
+            if len(UnmappedReads)>3000000:
+                file_w.writefiles(UnmappedReads)
+                UnmappedReads={}
+        if len(UnmappedReads)>0:
+            file_w.writefiles(UnmappedReads)
+            del UnmappedReads
+        bam_file.close()
     unmapped_file = file_w.unmapped_file
-    # sys.exit()    
-    # We've got the splited fastq file, filename is stored in Part_Fastq_Filename
-    # for i in range(len(Part_Fastq_Filename)):
-
+    file_w.file_close() 
+    print('[ '+str(datetime.now())+' ]\tBegin the 2st round mapping for clipped fragments.')
     command = 'bsmap -a '+unmapped_file+' -d '+refpath+'  -o '+unmapped_file[:unmapped_file.find('fastq')-1]+'.bam -n 1 -r 0 -U -R -p ' + threads + ' 1>>LiBis_log 2>>'+store_file_prefix+unmapped_file[:unmapped_file.find('fastq')-1]+'_log.txt'
     Batch_try = Pshell(command)
     Batch_try.process()
-
+    print('[ '+str(datetime.now())+' ]\tRecombining uniquely mapped fragments...')
     # run bsmap and get bam files named as Part_Fastq_Filename[i].bam
     # import combine to generate the finalfastq
 
@@ -297,7 +324,7 @@ def clip_process(inputfileinfo,param,given_bam_file,given_label):
         #libis_filter(ori_bam, split_bam)
     #------------------------------------------------------------------------------------------------------------------------------------------------
     
-    
+    print('[ '+str(datetime.now())+' ]\tBAM file sorting...')
     command='samtools sort -f -@ '+threads+' '+splitfilename+' '+splitfilename+'.sorted.bam'
     filter = Pshell(command)
     filter.process()
@@ -328,7 +355,7 @@ def clip_process(inputfileinfo,param,given_bam_file,given_label):
         command='mv '+splitfilename+' BAM_FILE/'
         filter.change(command)
         filter.process()
-
+    print('[ '+str(datetime.now())+' ]\tFINISH!')
     return 'BAM_FILE/'+outputname+'_combine.bam',originallogname,splitlogname,[unmapped_file,outputname+'_finalfastq.fastq.gz',outputname+'.sam']
     #print("Merge done!")#\nCreated final bam file called "+outputname+'_combine.bam')
 
@@ -339,6 +366,7 @@ def clipmode(name,param, given_bam_file,given_label):
     original mapping ratio, original mapped reads number,
     new generated splitted reads number, new generated splitted reads length
     '''
+    print('[ '+str(datetime.now())+' ]\tTemprary files cleaning...')
     newn,originallog,splitlog,cleanname=clip_process(name,param, given_bam_file,given_label)
 
     if (not 'cleanmode' in param) or param['cleanmode']:
@@ -351,15 +379,15 @@ def clipmode(name,param, given_bam_file,given_label):
 def cleanupmess(name):
     unmapped_file,n1,n2 = name
     outputname = n1[:n1.rfind('_')]
-    removeFileIfExist(n1)
-    removeFileIfExist(n2)
+    #removeFileIfExist(n1)
+    #removeFileIfExist(n2)
     removeFileIfExist(outputname+'.bam.bai')
-    removeFileIfExist(outputname+'_split.bam.bai')
+    #removeFileIfExist(outputname+'_split.bam.bai')
     removeFileIfExist(unmapped_file)
-    unmapped_name = unmapped_file[:unmapped_file.find('fastq')-1]
-    removeFileIfExist(unmapped_file[:-3]+'.bam')
+    unmapped_name = unmapped_file[:unmapped_file.rfind('fastq')-1]
+    removeFileIfExist(unmapped_name+'.bam')
     #removeFileIfExist(unmapped_file[:-3]+'.sam')
-    removeFileIfExist(unmapped_file[:-3]+'.bam.bai')
+    removeFileIfExist(unmapped_name+'.bam.bai')
     #for i in range(10):
     #    removeFileIfExist(outputname+'_'+str(i)+'.mapreduce')
     

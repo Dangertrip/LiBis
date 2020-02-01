@@ -7,12 +7,14 @@ from .bedtools import Bedtools
 from pandas import DataFrame
 from .bsplot import *
 import os
+from datetime import datetime
 
 def computeQC(name,fastqc,param={}):
     '''
     Computing function for qc. Return two arrays: The first one contains filenames for next step computing.
     The second one contains 
     '''
+    print('[ '+str(datetime.now())+' ]\tRunning quality control for samples...')
     fn=[]
     filename=''
     for nn in name:
@@ -23,9 +25,11 @@ def computeQC(name,fastqc,param={}):
             temp.append(newname+'_fastqc.html')
         fn.append(temp)
     fastqc.run(filename)
+    print('[ '+str(datetime.now())+' ]\tFinish quality control for samples')
     return name,fn
 
 def computeTrim(name,trim,param={}):
+    print('[ '+str(datetime.now())+' ]\tRunning Adaptor trimming for samples...')
     fn=''
     trimmedname=[]
     triminfo=[]
@@ -52,10 +56,12 @@ def computeTrim(name,trim,param={}):
         else:
             trim.run(fn,2)
     name=trimmedname
+    print('[ '+str(datetime.now())+' ]\tFinish Adaptor trimming for samples')
     return name,triminfo
 
 def computeBsmap(name,bsmap,param):
     #return ['BAM_FILE/6P1_notrim_val_1_val_1_combine.bam','BAM_FILE/6P1_notrim_val_1_val_1_combine.bam'],[['BAM_FILE/6P1_notrim_val_1_val_1_originallog.record','BAM_FILE/6P1_notrim_val_1_val_1_split_log.record'],['BAM_FILE/6P1_notrim_val_1_val_1_originallog.record','BAM_FILE/6P1_notrim_val_1_val_1_split_log.record']]
+    print('[ '+str(datetime.now())+' ]\tRunning Alignment for samples...')
     if not exist(name):
         raise "Fastq not found"
     clip = param['clip']
@@ -75,9 +81,11 @@ def computeBsmap(name,bsmap,param):
                 newname,logname = bsmap.normalmode(n,given_label,threads)
         bamname.append(newname)
         bamlogname.append(logname)
+    print('[ '+str(datetime.now())+' ]\tFinish Alignment for samples')
     return bamname,bamlogname
 
 def computeMcall(name,mcall,param):
+    print('[ '+str(datetime.now())+' ]\tRunning Methylation Calling for samples...')
     if not exist(name):
         raise "BAM not found"
     bedname=[]
@@ -90,6 +98,7 @@ def computeMcall(name,mcall,param):
         bn,ln=mcall.run(n)
         bedname.append(bn)
         logname.append(ln)
+    print('[ '+str(datetime.now())+' ]\tFinish Methylation Calling for samples')
     return bedname,logname
 
 def computeProcess(param):
@@ -153,7 +162,7 @@ def computeProcess(param):
         return
     if 'plot' not in param or not param['plot']:
         return
-
+    print('[ '+str(datetime.now())+' ]\tGenerating reports...')
     originalfilename = param['name']
     filelabel = param['label']
     marker=['Filename','Label']
