@@ -390,7 +390,7 @@ def fragCombine(param,outf):
     for i in range(len(valid_frags)):
         frag, order, ext = valid_frags[i]
         frag.query_name = frag.query_name + '_' + str(frag_rank) + '_' + str(order*step) + '_' + str(window+(order+ext)*step)
-        frag.set_tag('XR','')
+        frag.set_tag('XR','N')
         # print(frag.to_string())
         outf.write(frag)
         frag_rank += 1
@@ -423,7 +423,7 @@ def unsortedCombine(unmapped_file,args):
         current_reads_name=''
         for line in f:
             mismatch = line.get_tag('NM')
-            #if mismatch>1: continue
+            if mismatch>line.query_length*0.05: continue
             #print(line.query_name)
             if '&' not in line.query_name[-5:]:
                 continue
@@ -461,15 +461,15 @@ def unsortedCombine(unmapped_file,args):
 if __name__=='__main__':
 
     args={'step':5,
-          'binsize':30,
-          'filter':40,
+          'binsize':40,
+          'filter':46,
           'outputname':'sample1',
           #'originalfile':['mate1.fq.gz','mate2.fq.gz'],
           #'mapfilenumber':10,
           #'finish':1,
           #'report_clip':1
     }
-    unsortedCombine('mate1_bsmap.multi.unmapped',args)
+    unsortedCombine('/data/yyin/LiBis_test/data/simulation/rht_1sample/LiBis_011_w40_unmap/1_1.unmapped',args)
 
 
 '''

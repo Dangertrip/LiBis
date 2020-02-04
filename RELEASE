@@ -1,3 +1,7 @@
+## 0.1.2
+1. Add 0.05*read_length as mismatch threshold.
+2. Now original output bam doesn't contain any unmapped reads.
+
 ## 0.1.1
 1. Add -u to LiBis first round mapping.
 2. Add reminder for each step.

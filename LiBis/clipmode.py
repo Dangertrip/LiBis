@@ -272,7 +272,12 @@ def clip_process(inputfileinfo,param,given_bam_file,given_label):
         UnmappedReads = {}
         for line in bam_file:
             if (line.flag & 4 != 4): continue
-            qname = line.query_name
+            strand_info=''
+            if line.flag & 64 == 64:
+                strand_info='_1'
+            if line.flag & 128 == 128:
+                strand_info='_2'
+            qname = line.query_name + strand_info
             seq = line.seq
             qua = line.qual
             UnmappedReads[qname] = [seq, qua]
@@ -334,7 +339,8 @@ def clip_process(inputfileinfo,param,given_bam_file,given_label):
         command='samtools sort -f -@ '+threads+' '+given_bam_file+' '+outputname+'.sort.bam'
     filter.change(command)
     filter.process()
-    command='mv '+outputname+'.sort.bam '+outputname+'.bam'
+    #command='mv '+outputname+'.sort.bam '+outputname+'.bam'
+    command = 'samtools view -b -F 4 -@ '+threads+' '+outputname+'.sort.bam > '+outputname+'.bam' 
     filter.change(command)
     filter.process()
     command='mv '+splitfilename+'.sorted.bam '+splitfilename
@@ -343,10 +349,10 @@ def clip_process(inputfileinfo,param,given_bam_file,given_label):
     
     if not param["moabs"]:
         filter = Pshell("")
-        if given_bam_file:
-            command='cp '+given_bam_file+' '+outputname+'.bam'
-            filter.change(command)
-            filter.process()
+        #if given_bam_file:
+        #    command='cp '+given_bam_file+' '+outputname+'.bam'
+        #    filter.change(command)
+        #    filter.process()
         m=Pshell('samtools merge -f -@ '+threads+' '+store_file_prefix+outputname+'_combine.bam '+outputname+'.bam '+splitfilename)
         m.process()
         command='mv '+outputname+'.bam BAM_FILE/'
@@ -381,6 +387,7 @@ def cleanupmess(name):
     outputname = n1[:n1.rfind('_')]
     #removeFileIfExist(n1)
     #removeFileIfExist(n2)
+    removeFileIfExist(outputname+'.sort.bam')
     removeFileIfExist(outputname+'.bam.bai')
     #removeFileIfExist(outputname+'_split.bam.bai')
     removeFileIfExist(unmapped_file)
