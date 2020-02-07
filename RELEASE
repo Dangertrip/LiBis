@@ -1,3 +1,7 @@
+## 0.1.3
+1. Now use sort in pysam to sort all bam files.
+2. Now useless tags will be removed.
+
 ## 0.1.2
 1. Add 0.05*read_length as mismatch threshold.
 2. Now original output bam doesn't contain any unmapped reads.

@@ -330,22 +330,46 @@ def clip_process(inputfileinfo,param,given_bam_file,given_label):
     #------------------------------------------------------------------------------------------------------------------------------------------------
     
     print('[ '+str(datetime.now())+' ]\tBAM file sorting...')
-    command='samtools sort -f -@ '+threads+' '+splitfilename+' '+splitfilename+'.sorted.bam'
-    filter = Pshell(command)
-    filter.process()
+    #command='samtools sort -f -@ 6 '+splitfilename+' '+splitfilename+'.sorted.bam'
+    #filter = Pshell(command)
+    #filter.process()
+    pysam.sort('-@',threads,'-o',splitfilename+'.sorted.bam','-O','BAM',splitfilename)
+    #pysam.sort('-@',6,'-n',splitfilename,splitfilename+'.sorted')
     if not given_bam_file:
-        command='samtools sort -f -@ '+threads+' '+outputname+'.bam'+' '+outputname+'.sort.bam'
+        #command='samtools sort -f -@ 6 '+outputname+'.bam'+' '+outputname+'.sort.bam'
+        command = 'samtools view -b -F 4 -@ 6 '+outputname+'.bam > '+outputname+'.filter.bam'
+        filter=Pshell(command)
+        filter.process()
+        pysam.sort('-@',threads,'-o',outputname+'.sorted.bam','-O','BAM',outputname+'.filter.bam')
+        #pysam.sort('-@',6,'-n',outputname+'filter.bam',outputname+'.sorted')
+        removeFileIfExist(outputname+'filter.bam')
+        removeFileIfExist(outputname+'.bam')
     else:
-        command='samtools sort -f -@ '+threads+' '+given_bam_file+' '+outputname+'.sort.bam'
-    filter.change(command)
-    filter.process()
+        if param['bamu']:
+            command = 'samtools view -b -F 4 -@ 6 '+given_bam_file+' > '+outputname+'.filter.bam'
+            filter=Pshell(command)
+            filter.process()
+            pysam.sort('-@',threads,'-o',outputname+'.sorted.bam','-O','BAM',outputname+'.filter.bam')
+            #pysam.sort('-@',6,'-n',outputname+'filter.bam',outputname+'.sorted')
+        else:
+            pysam.sort('-@',threads,'-o',outputname+'.sorted.bam','-O','BAM',given_bam_file)
+            #pysam.sort('-@',6,'-n',given_bam_file,outputname+'.sorted')
+        removeFileIfExist(outputname+'.filter.bam')
+        #command='samtools sort -f -@ 6 '+given_bam_file+' '+outputname+'.sort.bam'
+    #filter.change(command)
+    #filter.process()
     #command='mv '+outputname+'.sort.bam '+outputname+'.bam'
-    command = 'samtools view -b -F 4 -@ '+threads+' '+outputname+'.sort.bam > '+outputname+'.bam' 
-    filter.change(command)
-    filter.process()
-    command='mv '+splitfilename+'.sorted.bam '+splitfilename
-    filter.change(command)
-    filter.process()
+    #command = 'samtools view -b -F 4 -@ 6 '+outputname+'.sort.bam > '+outputname+'.bam' 
+    #filter.change(command)
+    #filter.process()
+    #command='mv '+splitfilename+'.sorted.bam '+splitfilename
+    #filter.change(command)
+    #filter.process()
+    if os.path.exists(splitfilename+'.sorted.bam'):
+        os.rename(splitfilename+'.sorted.bam', splitfilename)
+    if os.path.exists(outputname+'.sorted.bam'):
+        os.rename(outputname+'.sorted.bam',outputname+'.bam')
+
     
     if not param["moabs"]:
         filter = Pshell("")
@@ -353,7 +377,7 @@ def clip_process(inputfileinfo,param,given_bam_file,given_label):
         #    command='cp '+given_bam_file+' '+outputname+'.bam'
         #    filter.change(command)
         #    filter.process()
-        m=Pshell('samtools merge -f -@ '+threads+' '+store_file_prefix+outputname+'_combine.bam '+outputname+'.bam '+splitfilename)
+        m=Pshell('samtools merge -f -@ 6 '+store_file_prefix+outputname+'_combine.bam '+outputname+'.bam '+splitfilename)
         m.process()
         command='mv '+outputname+'.bam BAM_FILE/'
         filter.change(command)

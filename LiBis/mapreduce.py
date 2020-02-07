@@ -390,7 +390,7 @@ def fragCombine(param,outf):
     for i in range(len(valid_frags)):
         frag, order, ext = valid_frags[i]
         frag.query_name = frag.query_name + '_' + str(frag_rank) + '_' + str(order*step) + '_' + str(window+(order+ext)*step)
-        frag.set_tag('XR','N')
+        frag.set_tag('XR',None)
         # print(frag.to_string())
         outf.write(frag)
         frag_rank += 1
