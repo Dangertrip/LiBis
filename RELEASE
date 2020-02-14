@@ -1,3 +1,10 @@
+## 0.1.4
+1. Now move identifiers in reads' name to tags:
+        MT: Mate information. 0: mate1; 1: mate2; 3: single end mapping. 
+        FG: Fragment order.
+        LC: Fragment length clipped from the reads head.
+        RC: Fragment length clipped from the reads tail.
+
 ## 0.1.3
 1. Now use sort in pysam to sort all bam files.
 2. Now useless tags will be removed.

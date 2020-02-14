@@ -343,8 +343,6 @@ def fragCombine(param,outf):
                     combine(read, candidate,result_strand[j],step)
                     update_read(read)
                     result_extension[j] += 1
-
-
         if not join_marker:
             result_fragment.append(frags[i])
             result_order.append(order[i])
@@ -389,8 +387,18 @@ def fragCombine(param,outf):
 
     for i in range(len(valid_frags)):
         frag, order, ext = valid_frags[i]
-        frag.query_name = frag.query_name + '_' + str(frag_rank) + '_' + str(order*step) + '_' + str(window+(order+ext)*step)
-        frag.set_tag('XR',None)
+        #frag.query_name = frag.query_name + '_' + str(frag_rank) + '_' + str(order*step) + '_' + str(window+(order+ext)*step)
+        name = frag.query_name
+        if '_' in name[-5:]:
+            name = frag.query_name.split('_')
+            frag.query_name = name[0]
+            line.set_tag("MT", name[1])
+        else:
+            line.set_tag("MT", '3')
+        line.set_tag("FG", str(frag_rank))
+        line.set_tag("LC", str(order*step))
+        line.set_tag("RC", str(window+(order+ext)*step))
+        frag.set_tag('XR', None)
         # print(frag.to_string())
         outf.write(frag)
         frag_rank += 1
