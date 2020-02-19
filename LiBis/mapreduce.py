@@ -301,7 +301,7 @@ def combine(read1,read2,strand,step):
         read1.set_tag("NM",new_mismatch)
 
 
-def fragCombine(param,outf):
+def fragCombine(param):#,outf):
     frags = param['frags']
     order = param['order']
     args = param['args']
@@ -385,6 +385,7 @@ def fragCombine(param,outf):
 
     frag_rank = 0
 
+    combined_frags = []
     for i in range(len(valid_frags)):
         frag, order, ext = valid_frags[i]
         #frag.query_name = frag.query_name + '_' + str(frag_rank) + '_' + str(order*step) + '_' + str(window+(order+ext)*step)
@@ -392,19 +393,87 @@ def fragCombine(param,outf):
         if '_' in name[-5:]:
             name = frag.query_name.split('_')
             frag.query_name = name[0]
-            line.set_tag("MT", name[1])
+            frag.set_tag("MT", name[1])
         else:
-            line.set_tag("MT", '3')
-        line.set_tag("FG", str(frag_rank))
-        line.set_tag("LC", str(order*step))
-        line.set_tag("RC", str(window+(order+ext)*step))
+            frag.set_tag("MT", '3')
+        frag.set_tag("FG", str(frag_rank))
+        frag.set_tag("LC", str(order*step))
+        frag.set_tag("RC", str(window+(order+ext)*step))
         frag.set_tag('XR', None)
         # print(frag.to_string())
-        outf.write(frag)
+        #outf.write(frag)
+        combined_frags.append(frag)
         frag_rank += 1
 
-    return frag_rank, read_length
+    return len(combined_frags), read_length, combined_frags 
 
+
+def pairwise(combined_frags):
+    for m1_frag in combined_frags[0]:
+        for m2_frag in combined_frags[1]:
+            r1 = m1_frag
+            r1_mate = r1.get_tag('MT')
+            r1_frag = r1.get_tag('FG')
+            r1_chr = r1.reference_name
+            r1_start = r1.reference_start
+            r1_len = r1.reference_length
+            r1_end = r1_start + r1_len
+            r2 = m2_frag
+            r2_mate = r2.get_tag('MT')
+            r2_frag = r2.get_tag('FG')
+            r2_chr = r2.reference_name
+            r2_start = r2.reference_start
+            r2_len = r2.reference_length
+            r2_end = r2_start + r2_len
+            if r1_chr==r2_chr:
+                template_length = max(r1_end, r2_end) - min(r1_start, r2_start)
+                if template_length<r1.template_length or r1.next_reference_start<0 or r1.next_reference_name!=r1_chr:
+                    r1.template_length = template_length
+                    r1.next_reference_name = r2_chr
+                    r1.next_reference_start = r2_start
+                    if r1_mate==1:
+                        m_info=64
+                    else:
+                        m_info=128
+                    if r2.flag&16>0:
+                        r1.flag = r1.flag|32
+                    r1.flag = r1.flag|1
+                    r1.flag = r1.flag|m_info
+                if template_length<r2.template_length or r2.next_reference_start<0 or r2.next_reference_name!=r2_chr:
+                    r2.template_length = template_length
+                    r2.next_reference_name = r1_chr
+                    r2.next_reference_start = r1_start
+                    if r2_mate==1:
+                        m_info=64
+                    else:
+                        m_info=128
+                    if r1.flag&16>0:
+                        r2.flag = r2.flag|32
+                    r2.flag = r2.flag|1
+                    r2.flag = r2.flag|m_info
+            else:
+                if r1.next_reference_start<0:
+                    r1.next_reference_name = r2_chr
+                    r1.next_reference_start = r2_start
+                    if r1_mate==1:
+                        m_info=64
+                    else:
+                        m_info=128
+                    if r2.flag&16>0:
+                        r1.flag = r1.flag|32
+                    r1.flag = r1.flag|1
+                    r1.flag = r1.flag|m_info
+                if r2.next_reference_start<0:
+                    r2.next_reference_name = r1_chr
+                    r2.next_reference_start = r1_start
+                    if r2_mate==1:
+                        m_info=64
+                    else:
+                        m_info=128
+                    if r1.flag&16>0:
+                        r2.flag = r2.flag|32
+                    r2.flag = r2.flag|1
+                    r2.flag = r2.flag|m_info
 
 
 
@@ -426,8 +495,8 @@ def unsortedCombine(unmapped_file,args):
 
     with pysam.AlignmentFile(unmapped_file+'.bam','r') as f:
         wf = pysam.AlignmentFile(outputname+"_split.bam", "wb", template=f)
-        frags = []
-        order = []
+        frags = [[],[]]
+        order = [[],[]]
         current_reads_name=''
         for line in f:
             mismatch = line.get_tag('NM')
@@ -436,34 +505,70 @@ def unsortedCombine(unmapped_file,args):
             if '&' not in line.query_name[-5:]:
                 continue
             read_name, o = line.query_name.split('&')
+
             line.query_name = read_name
+            if '_' in line.query_name[-5:]:
+                c = line.query_name.split('_')
+                pure_name = c[0]
+                _mate = int(c[1])-1
+            else:
+                pure_name = c[0]
+                _mate = 0
+
             #if 'E00488:423:HYHFMCCXY:8:1101:14874:1872' not in read_name: continue
             #print(line.to_string())
-            if read_name!=current_reads_name:
+            #if read_name!=current_reads_name:
+            if pure_name!=current_reads_name:
                 #print(current_reads_name)
                 if current_reads_name!='':
-                    if len(frags)>least_frags:
-                        feed_in_parameter['frags'] = frags
-                        feed_in_parameter['order'] = order
-                        reads_num, reads_len = fragCombine(feed_in_parameter,wf)
-                        reads_num_dist[reads_num] += 1
-                        for l in reads_len:
-                            reads_len_dist[l] += 1
-                    frags = []
-                    order = []
-                frags.append(line)
-                order.append(int(o))
-                current_reads_name = read_name
+                    combined_frags = [[],[]]
+                    
+                    # Combined fragments retrieving
+                    for m in range(2):
+                        if len(frags[m])>least_frags:
+                            feed_in_parameter['frags'] = frags[m]
+                            feed_in_parameter['order'] = order[m]
+                            reads_num, reads_len, combined_frags[m] = fragCombine(feed_in_parameter)#fragCombine(feed_in_parameter,wf)
+                            if reads_num>0:
+                                reads_num_dist[reads_num] += 1
+                                for l in reads_len:
+                                    reads_len_dist[l] += 1
+                    #Combined fragments pairing
+                    if len(combined_frags[0])>0 and len(combined_frags[1])>0:
+                        pairwise(combined_frags)
+                    
+                    #Combined fragments output
+                    for m in range(2):
+                        for outfrag in combined_frags[m]:
+                            wf.write(outfrag)
+
+                    frags = [[],[]]
+                    order = [[],[]]
+                frags[_mate].append(line)
+                order[_mate].append(int(o))
+                current_reads_name = pure_name # read_name
             else:
-                frags.append(line)
-                order.append(int(o))
+                frags[_mate].append(line)
+                order[_mate].append(int(o))
     if len(frags)>least_frags:
-        feed_in_parameter['frags'] = frags
-        feed_in_parameter['order'] = order
-        reads_num, reads_len = fragCombine(feed_in_parameter,wf)
-        reads_num_dist[reads_num] += 1
-        for l in reads_len:
-            reads_len_dist[l] += 1
+        combined_frags = [[],[]]
+        for m in range(2):
+            if len(frags[m])>least_frags:
+                feed_in_parameter['frags'] = frags[m]
+                feed_in_parameter['order'] = order[m]
+                reads_num, reads_len, combined_frags[m] = fragCombine(feed_in_parameter)
+                if reads_num>0:
+                    reads_num_dist[reads_num] += 1
+                    for l in reads_len:
+                        reads_len_dist[l] += 1
+        if len(combined_frags[0])>0 and len(combined_frags[1])>0:
+            pairwise(combined_frags)
+        for m in range(2):
+            for outfrag in combined_frags[m]:
+                wf.write(outfrag)
+        frags = [[],[]]
+        order = [[],[]]
+    
     return reads_num_dist,reads_len_dist
 
 if __name__=='__main__':
@@ -477,8 +582,9 @@ if __name__=='__main__':
           #'finish':1,
           #'report_clip':1
     }
-    unsortedCombine('/data/yyin/LiBis_test/data/simulation/rht_1sample/LiBis_011_w40_unmap/1_1.unmapped',args)
-
+    #unsortedCombine('/data/yyin/LiBis_test/data/simulation/rht_1sample/LiBis_011_w40_unmap/1_1.unmapped',args)
+    unsortedCombine('/scratch0/MB4CSF/MB4.R1.fq.ae.unmapped', args)
+    #unsortedCombine('test_mr', args)
 
 '''
     mr_file = ['mate1_bsmap_0.mapreduce',

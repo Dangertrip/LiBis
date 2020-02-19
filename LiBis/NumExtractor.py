@@ -1,5 +1,17 @@
 from .utils import *
 
+def libisSplitExtractor(filename):
+    lines = readf(filename)
+    rescued_reads, rescued_frags = 0,0
+    for line in lines:
+        if 'Total rescued original reads:' in line:
+            c = line.strip().split()
+            rescued_reads = int(c[-1])
+        if 'Total rescued fragments:' in line:
+            c = line.strip().split()
+            rescued_frags = int(c[-1])
+    return 0, rescued_reads, rescued_frags
+
 def BsmapOutputExtractor(filename):
     #aligned=[]
     #unique=[]
@@ -13,7 +25,7 @@ def BsmapOutputExtractor(filename):
         for line in lines:
             if "total read pairs:" in line:
                 a = line.strip().split()
-                total=int(line[line.rfind('total read pairs:')+len('total read pairs:'):].split()[0])                    
+                total=int(line[line.rfind('total read pairs:')+len('total read pairs:'):].split()[0])*2                    
                 continue
             if "aligned pairs:" in line:
                 a = line.strip().split()
@@ -81,18 +93,18 @@ def BsmapResult(filenames,clip,offered_bamfile):
         for (name, processed_bam) in zip(filenames,offered_bamfile):
             ori,spl = name
             ori_info = BsmapOutputExtractor(ori) if processed_bam=='' else [1,1,1]
-            spl_info = BsmapOutputExtractor(spl)
+            spl_info = libisSplitExtractor(spl)#BsmapOutputExtractor(spl)
             total_reads,mapped_reads,uniquely_mapped_reads=ori_info
-            _,clipped_reads,uniquely_clipped_reads=spl_info
+            _,clipped_reads,clipped_frags=spl_info
             result.append([total_reads,
                 mapped_reads,
                 uniquely_mapped_reads,
                 clipped_reads,
-                uniquely_clipped_reads,
+                clipped_frags,
                 mapped_reads+clipped_reads,
-                uniquely_mapped_reads+uniquely_clipped_reads,
+                uniquely_mapped_reads+clipped_reads,
                 (mapped_reads+clipped_reads)/float(total_reads),
-                (uniquely_mapped_reads+uniquely_clipped_reads)/float(total_reads)
+                (uniquely_mapped_reads+clipped_reads)/float(total_reads)
             ])
             print(result)
             if processed_bam!='':
@@ -111,14 +123,15 @@ def BsmapResult(filenames,clip,offered_bamfile):
             ori_info = BsmapOutputExtractor(ori)
             print(ori_info)
             total_reads,mapped_reads,uniquely_mapped_reads=ori_info
-            _,clipped_reads,uniquely_clipped_reads=[0,0,0]
+            _,clipped_reads,clipped_frags=[0,0,0]
             result.append([total_reads,mapped_reads,uniquely_mapped_reads,clipped_reads,
-                uniquely_clipped_reads,
-                mapped_reads+clipped_reads,uniquely_mapped_reads+uniquely_clipped_reads,
+                clipped_frags,
+                mapped_reads+clipped_reads,uniquely_mapped_reads+clipped_reads,
                 (mapped_reads+clipped_reads)/float(total_reads),
-                (uniquely_mapped_reads+uniquely_clipped_reads)/float(total_reads)])
+                (uniquely_mapped_reads+clipped_reads)/float(total_reads)])
     return result
 
 if __name__=="__main__":
-    r=BsmapResult(['BAM_FILE/temp'],False)
+    #r=BsmapResult(['BAM_FILE/temp'],False)
+    r=libisSplitExtractor('/data/jiali/map.log/Tis183.R1.am.trim_split_log.record')
     print(r)

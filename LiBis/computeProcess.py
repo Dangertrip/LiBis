@@ -189,7 +189,7 @@ def computeProcess(param):
     all mapped reads, all uniquely mapped reads, mapping ratio, uniquely mapping ratio],...]
     '''
     marker.extend(['Input reads','mapped reads','uniquely mapped reads','clipped reads', \
-            'uniquely clipped reads','all mapped reads','all uniquely mapped reads',\
+            'clipped fragments','all mapped reads','all uniquely mapped reads',\
             'mapping ratio','uniquely mapping ratio'])
     bsmapresult = BsmapResult(resultfilename['bsmap'],param['clip'],param['bamfiles'])#All contents required by the last extend
 

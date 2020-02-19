@@ -240,7 +240,7 @@ def split_log_localize(read_num_dist, read_len_dist, name):
     total_frag = 0
     for i,num in enumerate(read_num_dist):
         if num==0: continue
-        read_num = i+1
+        read_num = i#+1
         result.append(str(read_num)+'\t'+str(num)+'\n')
         total_ori_reads += num
         total_frag += num * read_num
@@ -250,7 +250,7 @@ def split_log_localize(read_num_dist, read_len_dist, name):
     total_bp = 0
     for i,num in enumerate(read_len_dist):
         if num==0: continue
-        read_len = i+1
+        read_len = i#+1
         result.append(str(read_len)+'\t'+str(num)+'\n')
         total_bp += read_len*num
     result.append('Total base pair: '+str(total_bp)+'\n')
