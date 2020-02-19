@@ -1,5 +1,7 @@
+## 0.1.5.1
 ## 0.1.5
 1. Now pair end reads in split bam file will be matched to each other. 
+2. Fixed bug in clipped bam report and the final report.
 
 ## 0.1.4
 1. Now move identifiers in reads' name to tags:
