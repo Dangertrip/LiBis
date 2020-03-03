@@ -146,8 +146,14 @@ Processed bam file for the first step. If bam files are offered here, the first 
 Run mcall for mapped bams or not
 ### -plot, --plot         
 Generate the final report or not
+### -module, --MOABSmodule
+Run LiBis as MOABS module. Please only apply this when integrating LiBis to MOABS.
 ### -nc, --nocheck        
 Skip the checking step for result folders. Using this parameter may rewrite the previous results.
+### -bu, --bamu           
+Given processed bam file contains unmapped reads. Only use with -bam is open.
+### -gz, --gzip           
+Temporary files are in gz format.
 ### -fullmode, --fullmode
 Keep all temp files.
 
@@ -216,6 +222,6 @@ Keep all temp files.
         LC: Clipping point from the reads head.
         RC: CLipping point from the reads tail.
         
-## version 0.1.5
+### version 0.1.5
 1. Now pair end reads in split bam file will be matched to each other. 
 2. Fixed bug in clipped bam report and the final report.
