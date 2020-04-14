@@ -82,13 +82,11 @@ docker run libis LiBis --help
 
 ```
 git clone https://github.com/Dangertrip/LiBis.git
-cd LiBis/LiBis/test/example/
+cd Example/
 
 # Run LiBis from begining:
-LiBis -n mate1.fq.gz,mate2.fq.gz mate3.fq.gz,mate4.fq.gz -r /PATH_TO_FASTA_REFERENCE 
+LiBis -n sample1_mate1.fq.gz,sample1_mate2.fq.gz sample2_mate1.fq.gz,sample2_mate2.fq.gz -r /PATH_TO_FASTA_REFERENCE 
 
-# Run LiBis with a original whole reads mapped bam files:
-LiBis -n mate1.fq.gz,mate2.fq.gz mate3.fq.gz,mate4.fq.gz -bam bsmap.bam,bsmap.bam -r /PATH_TO_FASTA_REFERENCE
 ```    
 We recommand that the original bam files are also mapped by BSMAP.
 
@@ -96,7 +94,7 @@ We recommand that the original bam files are also mapped by BSMAP.
 ### Run test case when using Docker(Please put reference and sample raw data under the dictionary you input.)
 
 ```
-docker run -v /path/to/yourdata:/data/ libis LiBis -f 0 -n 6P1_notrim_val_1.fq.gz,6P2_notrim_val_2.fq.gz 6P1_notrim_val_1.fq.gz,6P2_notrim_val_2.fq.gz -c 0 -l s1 s2 -g hg19 -r hg19.fa -qc 1 -t 1 
+docker run -v /path/to/yourdata:/data/ libis LiBis -f 0 -n name1.fq.gz name2.fq.gz -r hg19.fa
 ```
 
 ## Authors
@@ -148,8 +146,14 @@ Processed bam file for the first step. If bam files are offered here, the first 
 Run mcall for mapped bams or not
 ### -plot, --plot         
 Generate the final report or not
+### -module, --MOABSmodule
+Run LiBis as MOABS module. Please only apply this when integrating LiBis to MOABS.
 ### -nc, --nocheck        
 Skip the checking step for result folders. Using this parameter may rewrite the previous results.
+### -bu, --bamu           
+Given processed bam file contains unmapped reads. Only use with -bam is open.
+### -gz, --gzip           
+Temporary files are in gz format.
 ### -fullmode, --fullmode
 Keep all temp files.
 
@@ -173,3 +177,51 @@ Keep all temp files.
 5. The third number means the left cut length
 6. The forth number means the right cut length
 
+### version 0.0.9
+1. add -module, -mm ,and -pnf.
+2. All temp SAM files are replaced by pysam.
+
+### version 0.0.12
+1. add -rc. 
+2. All temp fastq files are in GZ format now.
+
+### version 0.0.13
+1. Remove 'sort' in mapreduce step
+
+### version 0.0.14
+1. Add RELEASE to the pypi package
+
+### version 0.0.15
+1. Combined multiple diction in mapreduce
+2. Reduce the complexity in unmapped reads selection.
+3. Changed to order of unmapped reads in unmapped fastq. Now fragments from one unmapped are adjacent and are ranked by file order from 0 to MAX.
+
+### version 0.1.0
+1. Add fast mode when BSMAP allows -U to output unsorted reads.
+2. MOABS>=1.3.8.5
+
+### version 0.1.1
+1. Add -u to LiBis first round mapping.
+2. Add reminder for each step.
+
+
+### version 0.1.2
+1. Add 0.05*read_length as mismatch threshold.
+2. Now original output bam doesn't contain any unmapped reads.
+
+
+### version 0.1.3
+1. Now use sort in pysam to sort all bam files.
+2. Now useless tags will be removed.
+
+
+### version 0.1.4
+1. Now move identifiers in reads' name to tags:
+        MT: Mate information. 0: mate1; 1: mate2; 3: single end mapping. 
+        FG: Fragment order.
+        LC: Clipping point from the reads head.
+        RC: CLipping point from the reads tail.
+        
+### version 0.1.5
+1. Now pair end reads in split bam file will be matched to each other. 
+2. Fixed bug in clipped bam report and the final report.
