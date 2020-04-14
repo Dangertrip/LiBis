@@ -33,7 +33,7 @@ def computeTrim(name,trim,param={}):
     fn=''
     trimmedname=[]
     triminfo=[]
-    print(name)
+    #print(name)
     for n in name:
         temp=[]
         infotemp=[]
@@ -41,13 +41,14 @@ def computeTrim(name,trim,param={}):
         fileorder=1
         for nn in n:
             newname = RemoveFastqExtension(nn)
+            purename = nn[nn.rfind('/')+1:]
             fn = fn+nn+' '
             if len(n)==1:
                 temp.append('Trim/'+newname+'_trimmed.fq.gz')
             else:
                 temp.append('Trim/'+newname+'_val_'+str(fileorder)+'.fq.gz')
                 fileorder+=1
-            infotemp.append('Trim/'+nn+'_trimming_report.txt')
+            infotemp.append('Trim/'+purename+'_trimming_report.txt')
         trimmedname.append(temp)
         triminfo.append(infotemp)
         fn.strip()

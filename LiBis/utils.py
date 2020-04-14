@@ -134,6 +134,8 @@ def RemoveFastqExtension(name):
     This function is used for remove extensions like .gz .fq .fastq.gz
     '''
     newname = name
+    if '/' in newname:
+        newname = newname[newname.rfind('/')+1:]
     if newname[-3:].lower()=='.gz':
         newname=newname[:-3]
     if newname[-3:].lower()=='.fq':

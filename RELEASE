@@ -1,3 +1,6 @@
+## 0.1.5.2
+1. Fix relative path bug
+
 ## 0.1.5.1
 ## 0.1.5
 1. Now pair end reads in split bam file will be matched to each other. 
