@@ -512,7 +512,7 @@ def unsortedCombine(unmapped_file,args):
                 pure_name = c[0]
                 _mate = int(c[1])-1
             else:
-                pure_name = c[0]
+                pure_name = line.query_name
                 _mate = 0
 
             #if 'E00488:423:HYHFMCCXY:8:1101:14874:1872' not in read_name: continue
