@@ -510,7 +510,7 @@ def unsortedCombine(unmapped_file,args):
             if '_' in line.query_name[-5:]:
                 c = line.query_name.split('_')
                 pure_name = c[0]
-                _mate = int(c[1])-1
+                _mate = int(c[-1])-1
             else:
                 pure_name = line.query_name
                 _mate = 0
