@@ -168,7 +168,7 @@ def random_head_tail():
     with open(readsname+'_simulation.bed','w') as f:
         f.writelines(finalbed)
 
-chrom_set, chrom_len, chrom_name, genome_len = genome_loader('/data/dsun/ref/humanigenome/hg19.fa')
+chrom_set, chrom_len, chrom_name, genome_len = genome_loader('hg38.fa')
 methy_dict = bed_reader('./hESC.bed')#'./hESC.bed')
 
 if __name__=="__main__":
