@@ -1,3 +1,7 @@
+## 0.1.5.6
+1. Modified the default value of window size, filter size based on AUC.
+2. Fixed bugs in reading reads name from bam file.
+## 0.1.5.5
 ## 0.1.5.4
 ## 0.1.5.3
 ## 0.1.5.2

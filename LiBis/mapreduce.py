@@ -482,6 +482,7 @@ def unsortedCombine(unmapped_file,args):
     outputname = args['outputname']
     window = args['binsize']
     filter = args['filter']
+    inputfilenumber = len(args['originalfile'])
     least_frags = (filter-window)//step
 
     result_fragment = []
@@ -507,7 +508,7 @@ def unsortedCombine(unmapped_file,args):
             read_name, o = line.query_name.split('&')
 
             line.query_name = read_name
-            if '_' in line.query_name[-5:]:
+            if inputfilenumber>1:#'_' in line.query_name[-5:]:
                 c = line.query_name.split('_')
                 pure_name = c[0]
                 _mate = int(c[-1])-1
