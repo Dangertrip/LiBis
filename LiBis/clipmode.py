@@ -342,7 +342,7 @@ def clip_process(inputfileinfo,param,given_bam_file,given_label):
         filter.process()
         pysam.sort('-@',threads,'-o',outputname+'.sorted.bam','-O','BAM',outputname+'.filter.bam')
         #pysam.sort('-@',6,'-n',outputname+'filter.bam',outputname+'.sorted')
-        removeFileIfExist(outputname+'filter.bam')
+        removeFileIfExist(outputname+'.filter.bam')
         removeFileIfExist(outputname+'.bam')
     else:
         if param['bamu']:

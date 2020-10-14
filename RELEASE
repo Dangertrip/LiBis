@@ -1,3 +1,5 @@
+## 0.1.5.7
+1. Now remove the filter.bam after alignment.
 ## 0.1.5.6
 1. Modified the default value of window size, filter size based on AUC.
 2. Fixed bugs in reading reads name from bam file.
