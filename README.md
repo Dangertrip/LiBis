@@ -84,7 +84,7 @@ docker run libis LiBis --help
 
 ```
 git clone https://github.com/Dangertrip/LiBis.git
-cd Example/
+cd LiBis/Example/
 
 # Run LiBis from begining:
 LiBis -n sample1_mate1.fq.gz,sample1_mate2.fq.gz sample2_mate1.fq.gz,sample2_mate2.fq.gz -r /PATH_TO_FASTA_REFERENCE 
