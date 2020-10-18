@@ -90,7 +90,6 @@ cd LiBis/Example/
 LiBis -n sample1_mate1.fq.gz,sample1_mate2.fq.gz sample2_mate1.fq.gz,sample2_mate2.fq.gz -r /PATH_TO_FASTA_REFERENCE 
 
 ```    
-We recommand that the original bam files are also mapped by BSMAP.
 
 
 ### Run test case when using Docker(Please put reference and sample raw data under the dictionary you input.)
