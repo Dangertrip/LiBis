@@ -135,35 +135,6 @@ def computeProcess(param):
 
     name,bsmapresult = computeBsmap(name,bsmap,param) 
     resultfilename['bsmap'] = bsmapresult
-    #print(resultfilename) 
-    #resultfilename={}
-    #resultfilename['trim']=
-    #resultfilename['bsmap']
-    #name=['BAM_FILE/6P1_notrim_val_1_val_1_combine.bam']
-    
-    if 'mcall' not in param or not param['mcall']:
-        return
-    
-    name,mcallresult = computeMcall(name,mcall,param)
-    resultfilename['mcall'] = mcallresult
-    meth_cpg_bed_name=name
-    '''
-    All computing job is done here. Plotting is behind.
-    Table:
-    Filename, Label, trim ratio(TrimOutputExtractor),input reads,mapped reads, unique mapped reads,
-    clipped reads, unique clipped reads, all mapped reads, unique all, mapping ratio, unique mapping ratio
-    
-    Plots:
-    1. Extract trim ratio from trim report files. Generate a bar plot
-    2. Extract bsmap mapping ratio 
-    3. 
-    
-    '''
-    if 'mcall' not in resultfilename or 'bsmap' not in resultfilename:
-        return
-    if 'plot' not in param or not param['plot']:
-        return
-    print('[ '+str(datetime.now())+' ]\tGenerating reports...')
     originalfilename = param['name']
     filelabel = param['label']
     marker=['Filename','Label']
@@ -184,11 +155,7 @@ def computeProcess(param):
     else:
         trimresult=["/" for i in range(len(originalfilename))]
 
-    '''
-    Result from BsmapResult:
-    [[total reads,mapped reads,uniquely mapped reads, clipped reads, unique clipped reads,
-    all mapped reads, all uniquely mapped reads, mapping ratio, uniquely mapping ratio],...]
-    '''
+
     marker.extend(['Input reads','mapped reads','uniquely mapped reads','clipped reads', \
             'clipped fragments','all mapped reads','all uniquely mapped reads',\
             'mapping ratio','uniquely mapping ratio'])
@@ -196,7 +163,6 @@ def computeProcess(param):
 
     sample=0
     datatable=[marker]
-    #print(trimresult)
     for orin in originalfilename:
         l = filelabel[sample]
         br = bsmapresult[sample]
@@ -224,10 +190,41 @@ def computeProcess(param):
     datatableprint = list(map(lambda x: ((''.join(list(map(lambda y:str(y)+'\t',x )))).strip()+'\n'),datatable))
     with open('RESULT/datatable.txt','w') as f:
         f.writelines(datatableprint)
+    
+    if 'mcall' not in param or not param['mcall']:
+        return
+    
+    name,mcallresult = computeMcall(name,mcall,param)
+    resultfilename['mcall'] = mcallresult
+    meth_cpg_bed_name=name
+    '''
+    All computing job is done here. Plotting is behind.
+    Table:
+    Filename, Label, trim ratio(TrimOutputExtractor),input reads,mapped reads, unique mapped reads,
+    clipped reads, unique clipped reads, all mapped reads, unique all, mapping ratio, unique mapping ratio
+    
+    Plots:
+    1. Extract trim ratio from trim report files. Generate a bar plot
+    2. Extract bsmap mapping ratio 
+    3. 
+    
+    '''
+    if 'mcall' not in resultfilename or 'bsmap' not in resultfilename:
+        return
+    if 'plot' not in param or not param['plot']:
+        return
+    print('[ '+str(datetime.now())+' ]\tGenerating reports...')
+
+    '''
+    Result from BsmapResult:
+    [[total reads,mapped reads,uniquely mapped reads, clipped reads, unique clipped reads,
+    all mapped reads, all uniquely mapped reads, mapping ratio, uniquely mapping ratio],...]
+    '''
+        
     '''
     Table generated as RESULT/datatable.txt
     '''
-    #print(filelabel)
+    print(param)
     if param['genome']!=None and len(filelabel)>1:
         bedtools.setparam(param)
         bedtools.makewindow()
