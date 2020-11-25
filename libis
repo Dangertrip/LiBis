@@ -171,11 +171,9 @@ def input_args():
         param=text_process(args.settingfile)
     else:
         default_labels = []
-        for i in range(len(args.name)):
-            default_labels.append(str(i+1))
         param={'name':(fastq_file_name_format(args.name) or None), 
                'clip':args.clip, 
-               'label':(args.label or default_labels), 
+               'label':(args.label or None), 
                'window':int(inputorN(args.window)), 
                'step':int(inputorN(args.step)), 
                'threads':str(args.process), 
