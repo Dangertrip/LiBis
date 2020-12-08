@@ -106,7 +106,7 @@ def BsmapResult(filenames,clip,offered_bamfile):
                 (mapped_reads+clipped_reads)/float(total_reads),
                 (uniquely_mapped_reads+clipped_reads)/float(total_reads)
             ])
-            print(result)
+            #print(result)
             if processed_bam!='':
                 for i in [0,1,4,5,6,7,8]:
                     result[-1][i]='Not Available'
@@ -121,7 +121,7 @@ def BsmapResult(filenames,clip,offered_bamfile):
         for name in filenames:
             ori = name
             ori_info = BsmapOutputExtractor(ori)
-            print(ori_info)
+            #print(ori_info)
             total_reads,mapped_reads,uniquely_mapped_reads=ori_info
             _,clipped_reads,clipped_frags=[0,0,0]
             result.append([total_reads,mapped_reads,uniquely_mapped_reads,clipped_reads,

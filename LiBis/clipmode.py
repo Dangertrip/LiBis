@@ -385,6 +385,12 @@ def clip_process(inputfileinfo,param,given_bam_file,given_label):
         command='mv '+splitfilename+' BAM_FILE/'
         filter.change(command)
         filter.process()
+        pysam.index(store_file_prefix+outputname+'_combine.bam')
+        pysam.index('BAM_FILE/'+outputname+'.bam')
+        pysam.index('BAM_FILE/'+splitfilename)
+    else:
+        pysam.index(outputname+'.bam')
+        pysam.index(splitfilename)
     print('[ '+str(datetime.now())+' ]\tFINISH!')
     return 'BAM_FILE/'+outputname+'_combine.bam',originallogname,splitlogname,[unmapped_file,outputname+'_finalfastq.fastq.gz',outputname+'.sam']
     #print("Merge done!")#\nCreated final bam file called "+outputname+'_combine.bam')

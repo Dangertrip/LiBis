@@ -1,3 +1,6 @@
+## 0.1.6
+1. Removed temp files
+2. Fixed the bug when using the new MOABS modules (Mcall needs bam index now).
 ## 0.1.5.8
 ## 0.1.5.7
 1. Now remove the filter.bam after alignment.

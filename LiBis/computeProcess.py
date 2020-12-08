@@ -224,7 +224,7 @@ def computeProcess(param):
     '''
     Table generated as RESULT/datatable.txt
     '''
-    print(param)
+    #print(param)
     if param['genome']!=None and len(filelabel)>1:
         bedtools.setparam(param)
         bedtools.makewindow()
@@ -241,11 +241,17 @@ def computeProcess(param):
         df = DataFrame(methdata,columns=columns)
         point_cluster(df,'RESULT/point_cluster.png')
         heatmap(df,'RESULT/heatmap.png')
+        for sn in shortnames:
+            removeFileIfExist(sn)
     abspath = os.path.abspath(__file__)
     pos=abspath.find('computeProcess')
     abspath = abspath[:pos]
     os.system('cp '+abspath+'result.html RESULT/')
     os.system('cp -r '+abspath+'jslib RESULT/')
+    removeFileIfExist(param['genome']+'_'+str(param['bin'])+'.bed')
+    for i in range(len(filelabel)):
+        removeFileIfExist('BED_FILE/'+str(i)+'.intersect')
+        removeFileIfExist('BED_FILE/'+str(i)+'.bed')
 
         
     

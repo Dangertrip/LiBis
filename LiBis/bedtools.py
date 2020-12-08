@@ -22,7 +22,7 @@ class BEDTOOLS:
         path=os.path.abspath(__file__)
         path = path[:path.rfind('/')+1]
         filename = path+'chromsize/'+self.genome + '.chrom.sizes'
-        print(filename)
+        #print(filename)
         outputname = self.genome+'_'+str(self.bin)+'.bed'
         os.system('bedtools makewindows -g '+filename+' -w '+str(self.bin)+' > '+outputname)
         self.binfile = outputname
@@ -33,7 +33,7 @@ class BEDTOOLS:
         for name in names:
             temp = str(sample)+'.intersect'
             output = str(sample)+'.bed'
-            os.system('bedtools intersect -loj -a '+self.binfile+' -b '+ name +" | awk -v OFS='\t' '{print $1,$2,$3,$7}' > BED_FILE/"+temp)
+            os.system('bedtools intersect -loj -a '+self.binfile+' -b '+ name +" | awk -v OFS='\t' '{if ($7>=0 && $7<=1) print $1,$2,$3,$7}' > BED_FILE/"+temp)
             os.system('bedtools groupby -i BED_FILE/'+temp+' -g 1,2,3 -c 4 -o mean > '+'BED_FILE/'+output)
             result.append('BED_FILE/'+output)
             sample=sample+1
