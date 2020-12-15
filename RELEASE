@@ -20,7 +20,7 @@
 
 ## 0.1.4
 1. Now move identifiers in reads' name to tags:
-        MT: Mate information. 0: mate1; 1: mate2; 3: single end mapping. 
+        MT: Mate information. 1: mate1; 2: mate2; 3: single end mapping. 
         FG: Fragment order.
         LC: Clipping point from the reads head.
         RC: CLipping point from the reads tail.
