@@ -124,7 +124,7 @@ Clip mode. 0 means close. 1 means open. default=1
 ### -l [LABEL [LABEL ...]], --label [LABEL [LABEL ...]]
 Labels for samples
 ### -g GENOME, --genome GENOME
-Genome the reference belong to.(Use for plotting) hg18/hg19/mm10/mm9 and so on. Plotting script will not avaliable if leave it blank. default: 'hg38'.
+Genome the reference belong to.(Use for plotting) hg38/hg19/mm10/mm9 and so on. Plotting script will not avaliable if leave it blank. default: 'hg38'.
 ### -w WINDOW, --window WINDOW
 Window length for clipping mode, default=40
 ### -s STEP, --step STEP  
