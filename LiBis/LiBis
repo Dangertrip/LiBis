@@ -3,6 +3,7 @@ import time
 import argparse
 import os
 import sys
+import gzip
 import xml.dom.minidom
 from LiBis.computeProcess import computeProcess
 from LiBis.utils import *
@@ -96,7 +97,11 @@ def valid(param):
     unexist_filename, exist_status = exist(name)
     if not exist_status:
         raise Exception('Fastq file '+ unexist_filename +' not exist!')
-
+    else:
+        for fastq_names in name:
+            for fastq_name in fastq_names:
+                check_fastq(fastq_name)
+ 
     if param['label']==None:
         param['label'] = [str(i) for i in range(len(param['name']))]
         #raise Exception('Label is needed! Please redefine -l parameter.')
@@ -134,6 +139,22 @@ def valid(param):
     else:
         os.mkdir("RESULT")
 
+def check_fastq(filename):
+    mod_mark=False
+    if filename.endswith('.gz'):
+        f = gzip.open(filename)
+        if '_' in f.readline().decode():
+            mod_mark=True
+            CMD = 'zcat ' + filename + '|sed -n "1~4s/_/-/p;2~4p;3~4p;4~4p" | gzip -c - > ' + filename + '.temp'
+    else:
+        f = open(filename)
+        if '_' in f.readline():
+            mod_mark=True
+            CMD = 'cat ' + filename + '|sed -n "1~4s/_/-/p;2~4p;3~4p;4~4p" > ' + filename + '.temp'
+    if mod_mark == True:
+        os.system(CMD)
+        os.system('mv '+ filename + '.temp ' + filename)
+    
 def input_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('-f','--file',type=int, help=r'Enter a number, 0 means using parameter to set up, 1 means using text file to set up',default=0)
